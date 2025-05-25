@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neura - Trợ lý quản lý lịch</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/static/images/icon.jpg" type="image/png">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="/static/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar">
+            <div class="sidebar-header d-flex align-items-center">
+                <img src="/static/images/icon.jpg" alt="Neura Logo" class="app-logo">
+                <h3 class="mb-0">Neura</h3>
+            </div>
+            
+            <button id="new-chat-btn" class="btn btn-success w-100 mb-3">
+                <i class="fas fa-plus"></i> Tạo hội thoại mới
+            </button>
+            
+            <h5 class="px-3 mt-3">Lịch sử hội thoại</h5>
+            <div id="conversation-list" class="conversation-list mt-2">
+                <!-- Conversations will be loaded here -->
+                {% for conv in conversation_list %}
+                    {% set time_str = conv.updated_at.strftime('%d/%m/%Y %H:%M') if conv.updated_at is defined and conv.updated_at is not none else 'Không rõ thời gian' %}
+                    {% set name = conv.conversation_name if conv.conversation_name is defined else 'Hội thoại không tên' %}
+                    {% set chat_id = conv.chat_id if conv.chat_id is defined else '' %}
+                    
+                    <div class="conversation-item {% if chat_id == current_chat_id %}current-conversation{% endif %}" data-id="{{ chat_id }}">
+                        <span class="conversation-title">{{ '🔵 ' if chat_id == current_chat_id else '📝 ' }}{{ name }}</span>
+                        <br>
+                        <span class="conversation-time">{{ time_str }}</span>
+                        <button class="delete-btn" data-id="{{ chat_id }}">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <div class="sidebar-footer mt-3">
+                <p>ID người dùng: <span id="user-id">{{ current_chat_id }}</span></p>
+            </div>
+        </nav>
+        
+        <!-- Main Content -->
+        <div id="content">
+            <div class="chat-container d-flex flex-column flex-grow-1">
+                <div class="chat-header">
+                    <div class="d-flex align-items-center justify-content-between px-3 my-3">
+                        <!-- Nút toggle bên trái -->
+                        <button id="sidebar-toggle" class="btn btn-success" title="Ẩn/Hiện thanh bên">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                    
+                        <!-- Tiêu đề -->
+                        <h2 class="flex-grow-1 text-center m-0 d-flex align-items-center justify-content-center">
+                            <img src="/static/images/icon.jpg" alt="Neura Logo" class="app-logo">
+                            Neura - Trợ lý quản lý lịch của bạn
+                        </h2>
+                    </div>       
+                </div>
+                
+                <div class="chat-history" id="chat-history">
+                    <!-- Chat messages will be loaded here -->
+                    {% for message in chat_history %}
+                        <div class="message {{ 'user-message' if message.type == 'user' else 'assistant-message' }}">
+                            <div class="message-content">{{ message.content | safe }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+                  <div class="action-area p-2">
+                    <div id="status-message" class="text-muted fst-italic mt-2"></div>
+                </div>
+                
+                <div class="input-area d-flex p-3 bg-white border-top">
+                    <input type="text" id="message-input" class="form-control me-2" 
+                           placeholder="Hãy nhập yêu cầu của bạn...">
+                    <button id="send-button" class="btn btn-success">
+                        <i class="fas fa-paper-plane"></i> Gửi
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- JavaScript for interaction -->
+    <script src="/static/js/chat.js" type="module"></script>
+</body>
+</html>
