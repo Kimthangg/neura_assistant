@@ -7,31 +7,37 @@ def update_event_api(function_args, timeZone: str = "Asia/Ho_Chi_Minh") -> dict:
     function_args gồm:
       - title_old, location_old,
       - title_new, location_new,
-      - start_time_old, end_time_old,
-      - start_time_new, end_time_new
+      - start_datetime, end_datetime,
+      - start_new, end_new
     """
     args = parse_to_dict(function_args)
     service, calendar_id = xac_thuc_calendar()
 
     # 1. Chuyển thời gian sang ISO
     try:
-        st_old = convert_to_iso_format(args['start_time_old'])
-        ed_old = convert_to_iso_format(args['end_time_old'])
-        st_new = convert_to_iso_format(args['start_time_new'])
-        ed_new = convert_to_iso_format(args['end_time_new'])
+        st_old = convert_to_iso_format(args['datetime_ranges'][0]['start_datetime'])
+        ed_old = convert_to_iso_format(args['datetime_ranges'][0]['end_datetime'])
+        st_new = convert_to_iso_format(args['datetime_ranges'][0]['start_new'])
+        ed_new = convert_to_iso_format(args['datetime_ranges'][0]['end_new'])
     except Exception as e:
         return {"error": f"Không parse được thời gian: {e}"}
-
-    # 2. Lấy events trong khoảng cũ
-    events_result = service.events().list(
-        calendarId=calendar_id,
-        timeMin=st_old,
-        timeMax=ed_old,
-        singleEvents=True,
-        orderBy='startTime',
-        timeZone=timeZone,
-    ).execute()
-    events = events_result.get('items', [])
+    page_token = None
+    event_list = []
+    while not event_list:
+        # 2. Lấy events trong khoảng cũ
+        events_result = service.events().list(
+            calendarId=calendar_id,
+            timeMin=st_old,
+            timeMax=ed_old,
+            singleEvents=True,
+            orderBy='startTime',
+            timeZone=timeZone,
+        ).execute()
+        events = events_result.get('items', [])
+        # Nếu không có sự kiện, lấy pageToken để kiểm tra trang tiếp theo
+        page_token = events_result.get("nextPageToken")
+        if not page_token:
+            break  # Không còn trang nào để tìm
     if not events:
         return {"error": message_no_get_calendar}
 
@@ -77,9 +83,9 @@ def update_event_api(function_args, timeZone: str = "Asia/Ho_Chi_Minh") -> dict:
 
     # 4. Cập nhật sự kiện
     if args.get('title_new') is not None:
-        target['summary'] = args['title_new']
+        target['summary'] = args['title_new'].capitalize() #in hoa vào đầu chữ
     if args.get('location_new') is not None:
-        target['location'] = args['location_new']
+        target['location'] = args['location_new'].capitalize()
     target['start'] = {'dateTime': st_new, 'timeZone': timeZone}
     target['end']   = {'dateTime': ed_new, 'timeZone': timeZone}
 
@@ -87,7 +93,6 @@ def update_event_api(function_args, timeZone: str = "Asia/Ho_Chi_Minh") -> dict:
         calendarId=calendar_id,
         eventId=target['id'],
         body=target,
-        timeZone=timeZone
     ).execute()
 
     return updated
