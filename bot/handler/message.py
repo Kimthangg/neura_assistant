@@ -35,6 +35,10 @@ def full_flow(action_input):
     print("extraction", extraction)
     # Add intent to extraction dictionary and return
     extraction["intent"] = intent
+    if intent in ["create_normal_event", "update_event", "delete_event"]:
+        with open("last_parameter.json", "w", encoding="utf-8") as f:
+            json.dump(extraction, f, ensure_ascii=False, indent=2)
+            print("Đã lưu extraction vào last_parameter.json")
     return extraction
 
 

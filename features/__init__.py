@@ -27,7 +27,7 @@ calendar_features_map = {
     "tools": None,
     "extraction_system_message":""
     },
-    
+    # =============== Agent Calendar Features ===============
     "create_normal_event": {
         "handler_message": create_event_api,
         "example": create_event_example,
@@ -66,7 +66,8 @@ calendar_features_map = {
       "tools": tool_delete_event,
       "extraction_system_message": system_prompt_delete_event
     },
-
+    # =============== Agent Gmail Features ===============
+    
 }
 
 

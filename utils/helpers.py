@@ -220,3 +220,26 @@ def parse_to_dict(s):
             return ast.literal_eval(s)
         except (ValueError, SyntaxError) as e:
             raise ValueError(f"Cannot parse string to dict: {e}")
+        
+# from langchain_core.chat_history import InMemoryChatMessageHistory
+# def create_history_from_list(message_list):
+#     'Chuyển đổi danh sách tin nhắn thành lịch sử hội thoại'
+#     history = InMemoryChatMessageHistory()
+#     for msg in message_list:
+#         if msg["type"] == "user":
+#             history.add_user_message(msg["content"])
+#         elif msg["type"] == "assistant":
+#             history.add_ai_message(msg["content"])
+#     return history
+
+from langchain.schema import HumanMessage, AIMessage, BaseMessage
+def convert_list_to_messages(chat_history_raw) -> list[BaseMessage]:
+    messages = []
+    for item in chat_history_raw:
+        role = item.get("type")
+        content = item.get("content")
+        if role == "user":
+            messages.append(HumanMessage(content=content))
+        elif role == "assistant":
+            messages.append(AIMessage(content=content))
+    return messages

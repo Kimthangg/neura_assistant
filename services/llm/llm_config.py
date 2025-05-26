@@ -1,7 +1,7 @@
 from langchain.agents import AgentExecutor, create_react_agent
 from langchain_openai import ChatOpenAI
 
-from config.environment import API_KEY, API_BASE, MODEL_NAME, API_KEY_2
+from config.environment import API_KEY, API_BASE, MODEL_NAME, API_KEY_2, API_KEY_3
 
 class LLM:
     def __init__(
@@ -21,7 +21,7 @@ class LLM:
         temperature (float): The temperature setting for the model, affecting randomness. Defaults to 0.
         """
         self.model = ChatOpenAI(
-            api_key=API_KEY,
+            api_key=API_KEY_3,
             openai_api_base=API_BASE,
             model=MODEL_NAME,
             temperature=temperature,
@@ -76,7 +76,7 @@ def llm_gen(model_name: str = MODEL_NAME, temperature: float = 0.5):
         ChatOpenAI: Một đối tượng ChatOpenAI đã được cấu hình, sẵn sàng để sử dụng.
     """
     return ChatOpenAI(
-        api_key=API_KEY,
+        api_key=API_KEY_3,
         openai_api_base=API_BASE,
         model=model_name,
         temperature=temperature,
@@ -89,6 +89,7 @@ def create_react_agent_executor(
     memory=None,
     model_name: str = MODEL_NAME,
     temperature: float = 0.0,
+    option_api = 1,  # 1: API_KEY, 2: API_KEY_2, 3: API_KEY_3
 ):
     """
     Tạo một AgentExecutor với ReAct agent.
@@ -103,10 +104,10 @@ def create_react_agent_executor(
     Returns:
         AgentExecutor: Đối tượng AgentExecutor đã được cấu hình
     """
+    print("Option API:", option_api)
     # Tạo LLM
     llm = ChatOpenAI(
-        api_key=API_KEY_2,
-        base_url=API_BASE,
+        api_key=API_KEY if option_api == 1 else API_KEY_2,
         openai_api_base=API_BASE,
         model=model_name,
         temperature=temperature,
@@ -121,7 +122,7 @@ def create_react_agent_executor(
         tools=tools,
         verbose=True,
         handle_parsing_errors=True,  # Giúp xử lý lỗi parsing output của LLM tốt hơn
-        max_iterations=10,  # Giới hạn số lần lặp để tránh vòng lặp vô hạn
+        max_iterations=6,  # Giới hạn số lần lặp để tránh vòng lặp vô hạn
         memory=memory,  # Thêm memory nếu được cung cấp
         # TimeoutError = 20, # Thời gian chờ tối đa cho mỗi lần gọi tool
     )

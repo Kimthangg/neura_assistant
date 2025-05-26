@@ -75,12 +75,15 @@ def create_event_api(func_data, timeZone: str = "Asia/Ho_Chi_Minh"):
                 ]
     # Thêm reminders nếu có
     if "reminders" in event_data:
-        if event_data["reminders"]["overrides"] != []:
-            event["reminders"] = {
-                "useDefault": False,
-                "overrides": event_data["reminders"]["overrides"],
-            }
-        else:
+        try: 
+            if event_data["reminders"]["overrides"] != []:
+                event["reminders"] = {
+                    "useDefault": False,
+                    "overrides": event_data["reminders"]["overrides"],
+                }
+            else:
+                event["reminders"] = {"useDefault": True}
+        except KeyError:
             event["reminders"] = {"useDefault": True}
     print(event)
     # Tạo đối tượng dịch vụ Google Calendar API

@@ -10,6 +10,8 @@ from services.llm.llm_config import create_react_agent_executor
 # Create a list of tools from the calendar_features_map
 tools = []
 import random
+import os
+import json
 for feature_name, feature_info in calendar_features_map.items():
     handler = feature_info.get("handler_message")
     if handler:
@@ -74,7 +76,7 @@ Action Input phải LÀ đối tượng JSON trực tiếp.
 Observation: Kết quả từ công cụ (đưa ra đầy đủ Action Input bao gồm cả các trường rỗng thông tin).
 ... (chu kỳ Thought/Action/Action Input/Observation này có thể lặp lại N lần)
 Nếu gặp lỗi Missing 'Action:' after 'Thought trong quá trình thực hiện, bạn có thể trả về một thông báo lỗi rõ ràng và cụ thể.
-Nếu đã đủ thông tin, bạn có thể trả về kết quả/trạng thái cuối cùng:
+Nếu đã đủ thông tin hoặc bất kì lỗi nào, bạn có thể trả về kết quả/trạng thái cuối cùng:
 Final Answer: <kết quả/trạng thái>
 
 Ví dụ câu lệnh tạo sự kiện:
@@ -99,6 +101,18 @@ Question: {input}
 Thought:{agent_scratchpad}""",
 )
 
+memory = ConversationBufferWindowMemory(
+    memory_key="chat_history", k=3, 
+    return_messages=True,
+)
+
+# Tạo agent_executor với memory đã cấu hình
+agent_executor = create_react_agent_executor(
+    tools=tools,
+    prompt_template=prompt_template,
+    memory=memory,
+    option_api=1
+)
 def agent_calendar_executor_func(query):
     """
     Hàm thực thi agent_executor với truy vấn đầu vào.
@@ -109,56 +123,20 @@ def agent_calendar_executor_func(query):
     Returns:
         dict: Kết quả trả về từ agent_executor.
     """
-    memory = ConversationBufferWindowMemory(
-        memory_key="chat_history", k=3, 
-        return_messages=True,
-    )
-
-    # Tạo agent_executor với memory đã cấu hình
-    agent_executor = create_react_agent_executor(
-        tools=tools,
-        prompt_template=prompt_template,
-        memory=memory,
-    )
-
+    if os.path.exists("last_parameter.json"):
+        try:
+            with open("last_params_path", 'r', encoding='utf-8') as file:
+                last_params = json.load(file)
+                print("Last parameters loaded:", last_params)
+            # Gắn thông tin từ file vào query
+            query = f"Câu truy vấn của người dùng:{query}\n[Last parameters: {json.dumps(last_params, ensure_ascii=False)}]"
+            # Xóa file sau khi đã sử dụng
+            os.remove("last_parameter.json")
+        except (json.JSONDecodeError, FileNotFoundError):
+            # Nếu có lỗi đọc file, tiếp tục với query gốc
+            pass
     # Gọi agent_executor với truy vấn đầu vào
     result = agent_executor.invoke({"input": query})
     # return  result
     # Trả về kết quả
     return result.get("output", "Lỗi trong quá trình thực thi!.")
-
-
-# Test run
-# if __name__ == "__main__":
-#     # while True:
-#     #     # Nhập truy vấn từ người dùng
-#     #     query = input("Nhập truy vấn: ")
-
-#     #     # Thực hiện truy vấn và nhận kết quả
-#     #     result = agent_executor_func(query)
-
-#     #     # In kết quả
-#     #     print("\nKết quả:", result.get('output'))
-#     #     print("\n" + "-"*50)
-#     # Thực hiện một chuỗi các truy vấn để thử nghiệm khả năng nhớ của agent
-#     queries = [
-#         "Tạo lịch họp vào sáng mai lúc 9h",
-#         # "Lấy lịch vào ngày mai",
-#         # "Nhắc tôi sáng mai có cuộc họp lúc 9h",
-#         # "Nhắc tôi có lịch học toán từ 9h tối đến 10h, nhắc tôi trước 60p",
-#         # "Tạo lịch họp vào sáng mai lúc 9h",
-#         # "tạo lịch học Toeic ở Toeic Thầy Long vào 7h tối vào thứ 2, thứ 4, thứ 6 hàng tuần",
-#         # "Tôi vừa đăng kí học Toeic ở Toeic Thầy Long vào 7h tối vào thứ 2, thứ 4, thứ 6 hàng tuần",
-#         # "Đúng rồi"
-#         # "Lấy lịch vào ngày mai"
-#         # "Xin chào, tôi tên là Thắng",
-#         # "Tạo lịch họp",
-#         # "Lúc 9h sáng mai",
-#         # "Tôi tên gì và vừa làm gì?"
-#     ]
-#     # Chạy từng truy vấn theo thứ tự và giữ nguyên bộ nhớ giữa các lần gọi
-#     for i, query in enumerate(queries):
-#         print(f"\n--- Truy vấn {i+1}: {query} ---\n")
-#         result = agent_executor.invoke({"input": query})
-#         print("\nFinal Answer:", result.get('output'))
-#         print("\n" + "-"*50)

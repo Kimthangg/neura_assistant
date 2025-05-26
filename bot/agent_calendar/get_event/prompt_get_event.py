@@ -1,11 +1,4 @@
 def get_calendar_rules():
-    """
-    Trả về prompt chung cho việc trích xuất thời gian từ văn bản.
-
-    Returns:
-    - Chuỗi prompt chứa quy tắc trích xuất thời gian
-    """
-
     return """Bạn là chuyên gia trích xuất thời gian chính xác từ văn bản.
 Nhiệm vụ của bạn là trích xuất tất cả các khoảng thời gian được đề cập trong văn bản của người dùng.
 

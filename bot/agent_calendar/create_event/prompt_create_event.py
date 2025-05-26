@@ -18,12 +18,14 @@ Kiểm tra xem thời gian có thỏa mãn điều kiện(incorrect_datetime):
     - Kiểm tra tháng không hợp lệ: ví dụ Tháng 13, tháng 0,...
     - Kiểm tra năm không hợp lệ: < năm hiện tại
     - Mặc định là False chỉ trả về True nếu tìm thấy bất kỳ mẫu không hợp lệ nào
-2. Trích xuất tiêu đề sự kiện từ yêu cầu
+2. Trích xuất tiêu đề và địa điểm sự kiện từ yêu cầu
  - Trích xuất thông tin về sự kiện từ câu lệnh của người dùng.
  - Example: 
     * "Họp nhóm" từ "Tạo sự kiện họp nhóm vào ngày mai lúc 15h"
     * "Đi chơi" từ "Tạo sự kiện đi chơi vào cuối tuần"
     * "Học Toeic" từ "Tạo sự kiện học Toeic vào tối thứ 7"
+  - Trích xuất địa điểm sự kiện nếu được đề cập, nếu không có thì để trống ('').
+  
 3. Trích xuất thời gian được đề cập:
   - Trích xuất tất cả các khoảng ngày giờ được đề cập trong văn bản một cách chính xác.
   - Chuyển đổi sang định dạng ISO chuẩn (YYYY-MM-DD HH:mm:ss).
@@ -35,8 +37,9 @@ Kiểm tra xem thời gian có thỏa mãn điều kiện(incorrect_datetime):
     ==> Sử dụng thời gian hiện tại đã đề cập để tùy chỉnh cho chính xác
   - Nếu chỉ có ngày mà không có giờ, sử dụng 00:00:00 cho thời điểm bắt đầu và 23:59:59 cho thời điểm kết thúc.
   - Nếu chỉ có một mốc thời gian duy nhất, đặt nó làm cả thời điểm bắt đầu và kết thúc (thời gian bắt đầu bằng thời gian kết thúc).
-  - Trích xuất địa điểm sự kiện nếu được đề cập, nếu không có thì để trống ('').
-  - Trích xuất quy tắc lặp lại (RRULE) từ yêu cầu của người dùng, đảm bảo tuân theo định dạng iCalendar:
+  - Trả về một mảng rỗng nếu không tìm thấy thông tin ngày giờ nào.
+  
+4. Trích xuất quy tắc lặp lại (RRULE) từ yêu cầu của người dùng, đảm bảo tuân theo định dạng iCalendar:
     + FREQ: tần suất (DAILY, WEEKLY, MONTHLY, YEARLY)
     + INTERVAL: khoảng cách (mặc định là 1)
     + BYMONTHDAY: ngày trong tháng (1-31)
@@ -44,11 +47,43 @@ Kiểm tra xem thời gian có thỏa mãn điều kiện(incorrect_datetime):
     + BYDAY: ngày trong tuần (MO, TU, WE, TH, FR, SA, SU)
     + COUNT: số lần lặp lại
     + UNTIL: ngày kết thúc lặp lại (YYYYMMDD)
-  - Chỉ lấy thời gian của ngày đầu tiên trong khoảng thời gian được đề cập.
-  ("Tôi vừa đăng kí học Toeic ở Toeic Thầy Long vào 7h tối vào thứ 2, thứ 4, thứ 6 hàng tuần cho đến ngày 25 tháng 6" sẽ đưa ra datetime_ranges là thứ 2 từ 19:00:00 đến 19:00:00 và rrule là RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR;UNTIL=20250625")
-  - Trong các trường hợp không rõ ràng, đưa ra giả định hợp lý dựa trên ngữ cảnh.
-  - Trả về một mảng rỗng nếu không tìm thấy thông tin ngày giờ nào.
-4. Trích xuất cài đặt nhắc nhở (reminders) từ yêu cầu của người dùng:
+    + BYHOUR: giờ trong ngày (0-23)
+    + BYMINUTE: phút trong giờ (0-59)
+  Một số Patterns thường gặp:
+    a. Lặp theo ngày:
+    "mỗi ngày" → RRULE:FREQ=DAILY
+    "cách ngày", "2 ngày một lần", "2 ngày/lần", "1 ngày nghỉ 1 ngày" → RRULE:FREQ=DAILY;INTERVAL=2
+    "mỗi sáng" → RRULE:FREQ=DAILY;BYHOUR=5,6,7,8,9,10
+    "mỗi tối" → RRULE:FREQ=DAILY;BYHOUR=18,19,20,21,22,23
+    b. Lặp theo tuần:
+    "mỗi tuần" → RRULE:FREQ=WEEKLY
+    "từ thứ 2 đến thứ 6 hàng tuần", "các ngày trong tuần" → RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR
+    "mỗi thứ 2 hàng tuần" → RRULE:FREQ=WEEKLY;BYDAY=MO
+    "cách tuần", "2 tuần một lần" → RRULE:FREQ=WEEKLY;INTERVAL=2
+    "cách tuần vào thứ 2 và thứ 3" → RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,TU
+    c. Lặp theo tháng:
+    "mỗi tháng" → RRULE:FREQ=MONTHLY
+    "cách tháng", "2 tháng một lần" → RRULE:FREQ=MONTHLY;INTERVAL=2
+    "mỗi tháng ngày 2" → RRULE:FREQ=MONTHLY;BYMONTHDAY=2
+    "mỗi tháng ngày 29" → RRULE:FREQ=MONTHLY;BYMONTHDAY=29
+    "ngày 31 mỗi tháng" → RRULE:FREQ=MONTHLY;BYMONTHDAY=31
+    "thứ 2 đầu tiên mỗi tháng" → RRULE:FREQ=MONTHLY;BYDAY=1MO
+    "thứ 6 cuối cùng mỗi tháng" → RRULE:FREQ=MONTHLY;BYDAY=-1FR
+    "thứ 2 đầu tiên và thứ 6 cuối cùng mỗi tháng" → RRULE:FREQ=MONTHLY;BYDAY=1MO,-1FR
+    "ngày 2 cách 2 tháng" → RRULE:FREQ=MONTHLY;INTERVAL=2;BYMONTHDAY=2
+    "thứ 3 tuần thứ 3 cách 2 tháng" → RRULE:FREQ=MONTHLY;INTERVAL=2;BYDAY=3TU
+    d. Lặp theo năm:
+    "mỗi năm" → RRULE:FREQ=YEARLY
+    "cách năm", "2 năm một lần" → RRULE:FREQ=YEARLY;INTERVAL=2
+    "hàng năm vào ngày 23 tháng 12" → RRULE:FREQ=YEARLY;BYMONTH=12;BYMONTHDAY=23
+    e. Kết thúc vào ngày cụ thể:
+    "đến ngày 16/3/2025" → thêm UNTIL=20250316T000000Z vào RRULE (Lưu ý: format ngày phải được chuyển đổi thành YYYYMMDDT000000Z)
+  - Nếu không có thông tin lặp lại, để rrule là chuỗi rỗng ('').
+  - Chỉ lấy thời gian của ngày đầu tiên trong khoảng thời gian được đề cập và dùng RRULE để chỉ tuần xuất lặp lại.
+  (Ví dụ: "Tôi vừa đăng kí học Toeic ở Toeic Thầy Long từ 7h-10h tối vào thứ 2, thứ 4, thứ 6 hàng tuần cho đến ngày 25 tháng 6" sẽ đưa ra datetime_ranges là thứ 2 từ 19:00:00 đến 22:00:00 và rrule là RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR;UNTIL=20250625")
+  - Trong các trường hợp không rõ ràng, đưa ra giả định hợp lý dựa trên ngữ cảnh nhưng vẫn đảm bảo tuân thủ định dạng iCalendar.
+
+5. Trích xuất cài đặt nhắc nhở (reminders) từ yêu cầu của người dùng:
   - Xác định xem có sử dụng cài đặt mặc định của lịch không (usedefault = true/false).
   - Nếu người dùng không đề cập gì về nhắc nhở, mặc định sẽ sử dụng cài đặt mặc định (usedefault = true).
   - Nếu người dùng muốn tùy chỉnh nhắc nhở:
