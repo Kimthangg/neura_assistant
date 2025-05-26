@@ -1,4 +1,10 @@
 get_multi_calendar_example = [
+    "Lấy lịch ngày mai",
+    "Lấy lịch tuần này",
+    "Lấy lịch tháng này",
+    "Lấy lịch tuần sau",
+    "Lấy lịch tháng sau",
+    "Lấy lịch hôm nay",
     # ===== LẤY NHIỀU SỰ KIỆN TRONG MỘT KHOẢNG THỜI GIAN =====
     # Format: [câu hỏi về nhiều sự kiện] + [khoảng thời gian cụ thể]
     "Lịch của tôi trong tuần này như thế nào?",

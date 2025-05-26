@@ -35,12 +35,12 @@ calendar_features_map = {
         "extraction_system_message": system_prompt_create_event,
         
     },
-    "get_first_calendar": {
-        "handler_message": get_first_calendar_api,
-        "example": get_first_calendar_example,
-        "tools": tool_get_event,
-        "extraction_system_message":system_prompt_get_event
-    },
+    # "get_first_calendar": {
+    #     "handler_message": get_first_calendar_api,
+    #     "example": get_first_calendar_example,
+    #     "tools": tool_get_event,
+    #     "extraction_system_message":system_prompt_get_event
+    # },
     "get_freetime": {
         "handler_message": get_free_time_api,
         "example": get_free_time_example,

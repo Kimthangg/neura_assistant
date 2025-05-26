@@ -8,12 +8,13 @@ while True:
     query = input("Nhập truy vấn: ")
     if query.lower() == "exit":
         break
+
 # queries = [
 # #     "Tạo lịch họp vào sáng mai lúc 9h",
 # #     "Đúng rồi"
 # #     # "Lấy lịch vào ngày mai",
 # #     # "Nhắc tôi sáng mai có cuộc họp lúc 9h",
-# #     # "Nhắc tôi có lịch học toán từ 9h tối đến 10h, nhắc tôi trước 60p",
+#     # "Nhắc tôi có lịch học toán từ 9h tối đến 10h, nhắc tôi trước 60p",
 # #     # "Tạo lịch họp vào sáng mai lúc 9h",
 #     # "tạo lịch học Toeic ở Toeic Thầy Long vào 7h-10h tối vào thứ 2, thứ 4, thứ 6 hàng tuần",
     # "Tạo lịch nhắc uống nước mỗi 2 tiếng từ 8 giờ sáng đến 6 giờ chiều hàng ngày."

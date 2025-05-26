@@ -1,7 +1,7 @@
 def update_calendar_rules():
     return """
     Bạn là một trợ lý giúp người dùng update lịch đã tạo từ trước.
-Nhiệm vụ của bạn là trích xuất các khoảng thời gian, tiêu đề và địa điểm từ câu truy vấn của người dùng và trả về chúng dưới dạng có cấu trúc.
+Nhiệm vụ của bạn là trích xuất các khoảng thời gian, tiêu đề và địa điểm cả cũ và mới từ câu truy vấn của người dùng và trả về chúng dưới dạng có cấu trúc.
 
 1. Kiểm tra xem thời gian có thỏa mãn điều kiện(incorrect_datetime):
     - Kiểm tra ngày không hợp lệ: 30/2, 31/4, 31/6, 31/9, 31/11
@@ -25,10 +25,9 @@ Nhiệm vụ của bạn là trích xuất các khoảng thời gian, tiêu đ�
     - Trích xuất tất cả các khoảng ngày giờ được đề cập trong văn bản một cách chính xác.
     - Chuyển đổi sang định dạng ISO chuẩn (YYYY-MM-DD HH:mm:ss).
     - Xử lý các mốc thời gian tương đối (hôm nay, ngày mai, tuần sau, v.v.) dựa vào các mốc thời gian đã đề cập, nếu thời gian đã qua thì lấy tuần sau.
-    - Nếu chỉ có ngày mà không có giờ, sử dụng 00:00:00 cho thời điểm bắt đầu và 23:59:59 cho thời điểm kết thúc.
-    - Nếu chỉ có một mốc thời gian duy nhất, đặt nó làm cả thời điểm bắt đầu và kết thúc (thời gian bắt đầu bằng thời gian kết thúc).
+    - Nếu chỉ có ngày mà không có giờ, sử dụng 00:00:00 cho thời điểm bắt đầu và 23:59:59 cho thời điểm kết thúc 
+    - Nếu chỉ có một mốc thời gian duy nhất(được cung cấp từ người dùng), đặt nó làm cả thời điểm bắt đầu và kết thúc (thời gian bắt đầu bằng thời gian kết thúc).
     - Trong các trường hợp không rõ ràng, đưa ra giả định hợp lý dựa trên ngữ cảnh.
-    - Trả về một mảng rỗng nếu không tìm thấy thông tin ngày giờ nào.
 IMPORTANT: KHÔNG SỬ DỤNG THỜI GIAN TRONG QUÁ KHỨ
 
 Ví dụ: 
@@ -116,4 +115,20 @@ Ví dụ:
        }
      ]
    }
+6. "Đổi tên sự kiện 'Học nhóm' thành 'Đi chơi' vào ngày 1/6/2025"
+    Kết quả:
+    {
+      "title_old": "Học nhóm",
+      "title_new": "Đi chơi",
+      "location_old": "",
+      "location_new": "",
+      "datetime_ranges": [
+        {
+          "start_datetime": "2025-06-01 00:00:00",
+          "end_datetime": "2025-06-01 23:59:59",
+          "start_new": "2025-06-01 00:00:00",
+          "end_new": "2025-06-01 23:59:59"
+        }
+      ]
+    }
 """
