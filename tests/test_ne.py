@@ -33,6 +33,9 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "./.."))
 #       start_new: {response['datetime_ranges'][0]['start_new']}
 #       end_new: {response['datetime_ranges'][0]['end_new']}""")
 
-from bot.agent_calendar.create_event import create_event_extraction
-
-print(create_event_extraction("Tạo lịch họp vào sáng mai lúc 9h"))
+from bot.agent_gmail.datetime_extraction import summary_gmail_extraction
+from features.gmail_features.summarize_emails.handler import get_context_mail_api
+prompt = "Tóm tắt giúp tôi các email từ ngày 08/5 đến 10/5"
+result = summary_gmail_extraction(prompt)
+print(result)
+print(get_context_mail_api(result))

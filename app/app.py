@@ -8,7 +8,7 @@ from flask import Flask, jsonify, render_template, request, session
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "./..")))
 
 # Import required modules from your project
-from bot import agent_executor_func
+from bot import agent_calendar_executor_func
 from db.db_manager import MongoDBManager
 
 # --- Initialization ---
@@ -67,7 +67,7 @@ def chat():
     user_message = data["message"]
 
     # Process message with LLM - Truyền chat_history từ session vào gen_llm
-    response = agent_executor_func(user_message, session.get("chat_history", []))
+    response = agent_calendar_executor_func(user_message)
     print("Response from LLM:", response)
     # Update chat history
     if "chat_history" not in session:

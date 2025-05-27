@@ -20,6 +20,11 @@ from bot.agent_calendar.get_event.datetime_extraction import system_prompt_get_e
 from bot.agent_calendar.delete_event.datetime_extraction import system_prompt_delete_event, tool_delete_event
 from bot.agent_calendar.update_event.datetime_extraction import system_prompt_update_event, tool_update_event
 
+#gmail
+from bot.agent_gmail.datetime_extraction import system_prompt_summary_gmail, tool_summary_gmail
+from .gmail_features.summarize_emails.handler import *
+from .gmail_features.summarize_emails.example import *
+
 calendar_features_map = {
     "normal_message": {
     # "handler_message": chitchat,
@@ -67,9 +72,19 @@ calendar_features_map = {
       "extraction_system_message": system_prompt_delete_event
     },
     # =============== Agent Gmail Features ===============
-    
+    "summary_gmail": {
+      "handler_message": get_context_mail_api,
+      "example": summary_gmail_example,
+      "tools": tool_summary_gmail,
+      "extraction_system_message": system_prompt_summary_gmail
+    },
+    # "search_gmail": {
+    #     "handler_message": search_gmail_api,
+    #     "example": search_gmail_example,
+    #     "tools": None,  # Assuming no specific tool for this feature
+    #     "extraction_system_message": ""
+    # }
 }
-
 
 def intent_example_dict():
     intent_example = {}

@@ -12,14 +12,13 @@ def full_flow(action_input):
     intent = func_args.get("intent").strip()
     print("intent", intent)
     print("user_message", user_message)
+    # ============CALENDAR================
     if not intent or intent == "normal_message":
         # extraction = {'content':get_llm(user_message)}
         extraction = {"intent": "normal_message"}
-
     # Create event
     elif intent == "create_normal_event":
         extraction = create_event_extraction(user_message)
-
     # get event
     elif intent in ["get_first_calendar", "get_freetime", "get_multi_calendar"]:
         # Extract datetime from text
@@ -27,10 +26,12 @@ def full_flow(action_input):
     # Update event
     elif intent == "update_event":
         extraction = update_event_extraction(user_message)
-
     # Delete event
     elif intent == "delete_event":
         extraction = delete_event_extraction(user_message)
+    # ============GMAIL================
+    elif intent == "summary_gmail":
+        extraction = summary_gmail_extraction(user_message)
     print("intent", intent)
     print("extraction", extraction)
     # Add intent to extraction dictionary and return
