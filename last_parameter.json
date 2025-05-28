@@ -1,17 +1,22 @@
 {
-  "incorrect_datetime": false,
-  "reminders": {
-    "overrides": [],
-    "usedefault": true
-  },
   "location": "",
   "datetime_ranges": [
     {
       "rrules": "",
-      "end_datetime": "2025-05-29 11:00:00",
-      "start_datetime": "2025-05-29 07:00:00"
+      "start_datetime": "2025-05-10 15:30:00",
+      "end_datetime": "2025-05-10 15:30:00"
     }
   ],
-  "title": "Họp với team AI",
+  "reminders": {
+    "overrides": [
+      {
+        "minutes": 20,
+        "method": "popup"
+      }
+    ],
+    "usedefault": false
+  },
+  "incorrect_datetime": false,
+  "title": "xác thực mail AI EASY",
   "intent": "create_normal_event"
 }

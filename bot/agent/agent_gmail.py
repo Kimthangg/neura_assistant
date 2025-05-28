@@ -81,7 +81,8 @@ Nếu gặp lỗi Missing 'Action:' after 'Thought trong quá trình thực hi�
 Nếu đã đủ thông tin hoặc bất kì lỗi nào, bạn có thể trả về kết quả/trạng thái cuối cùng:
 Final Answer: <kết quả/trạng thái>
 - Đối với tóm tắt email, bạn sẽ trả về bản tóm tắt, đồng thời nếu có các thông tin về ngày tháng, địa điểm, link cuộc họp trong nội dung email thì hãy đưa ra các thông tin đó cho người dùng biết.
-
+- Nếu có nhiều email được tóm tắt, hãy đưa ra danh sách được đánh số (1,2,3,...) các email đã được tóm tắt.
+- Kết quả bạn đưa ra để cho 1 agent khác xử lý tiếp, vì vậy hãy đảm bảo rằng kết quả FINAL ANSWER và sử dụng bởi agent khác.
 Bắt đầu!
 
 Question: {input}

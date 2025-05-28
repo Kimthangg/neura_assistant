@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.append( os.path.abspath(os.path.join(os.path.dirname(__file__), "./..")))
 
-from bot import agent_manager_executor_func, handle_tam
+from bot import agent_manager_executor_func
 
 while True:
     # Nhập truy vấn từ người dùng
@@ -22,7 +22,7 @@ while True:
 # # Chạy từng truy vấn theo thứ tự và giữ nguyên bộ nhớ giữa các lần gọi
 # for i, query in enumerate(queries):
 #     print(f"\n--- Truy vấn {i+1}: {query} ---\n")
-    result = handle_tam(query)
+    result = agent_manager_executor_func(query)
     print("\nFinal Answer:", result)
     print("\n" + "-"*50)
     # time.sleep(3)
