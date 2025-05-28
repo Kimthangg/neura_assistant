@@ -73,8 +73,10 @@ prompt = PromptTemplate(
 )
 chain_summarize = prompt | llm
 
-def get_context_mail_api(args, limit=20):
+from utils import parse_to_dict
+def summarize_emails_api(args, limit=20):
     """Tổng hợp context mail trong khoảng thời gian đã cho."""
+    args = parse_to_dict(args)
     mails = get_mail_in_range(args["start_date"], args["end_date"])
     if limit:
         mails = mails[:limit]

@@ -4,13 +4,7 @@ from langchain_openai import ChatOpenAI
 from config.environment import API_KEY, API_BASE, MODEL_NAME, API_KEY_2, API_KEY_3
 
 class LLM:
-    def __init__(
-        self,
-        system_message: str,
-        tool: dict,
-        model_name: str = MODEL_NAME,
-        temperature: float = 0.0,
-    ):
+    def __init__(self, system_message: str, tool: dict, model_name: str = MODEL_NAME, temperature: float = 0.0,):
         """
         Initializes the LLM class with a specified system message, tool, model name, and temperature.
 
@@ -82,11 +76,15 @@ def llm_gen(model_name: str = MODEL_NAME, temperature: float = 0.5):
         temperature=temperature,
     )
 
-
+from langchain.memory import ConversationBufferWindowMemory
+memory_bw = ConversationBufferWindowMemory(
+    memory_key="chat_history", k=3, 
+    return_messages=True,
+)
 def create_react_agent_executor(
     prompt_template,
     tools,
-    memory=None,
+    memory=memory_bw,
     model_name: str = MODEL_NAME,
     temperature: float = 0.0,
     option_api = 1,  # 1: API_KEY, 2: API_KEY_2, 3: API_KEY_3
@@ -112,9 +110,9 @@ def create_react_agent_executor(
         model=model_name,
         temperature=temperature,
     )
-
     # Tạo ReAct agent
     agent = create_react_agent(llm, tools, prompt_template)
+
 
     # Tạo và trả về AgentExecutor
     return AgentExecutor(

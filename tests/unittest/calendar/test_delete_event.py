@@ -11,7 +11,7 @@ warnings.filterwarnings("ignore")
 import time
 from datetime import datetime, timedelta
 
-from bot.agent_calendar.delete_event.datetime_extraction import (
+from bot.agent.delete_event.datetime_extraction import (
     extract_datetime_delete_event,
 )
 from utils import *

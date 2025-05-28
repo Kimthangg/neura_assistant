@@ -1,3 +1,0 @@
-Ngày 23/05/2025
-- Thiết kế lại agent, đưa ra thông tin cho người dùng xác thực trước khi thực hiện
-- Bộ nhớ đang nhớ trong 1 agent, muốn tách ra theo từng cuộc hội thoại

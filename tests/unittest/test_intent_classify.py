@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from bot.agent_calendar import extraction_model
+from bot.agent import extraction_model
 from bot.agent_intent import intent_model
 
 # Test cases for intent classification

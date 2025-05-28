@@ -1,5 +1,5 @@
 # Danh sách ví dụ người dùng yêu cầu tóm tắt email theo khoảng thời gian
-summary_gmail_example = [
+summarize_emails_example = [
     # Câu lệnh cụ thể theo ngày
     "Tóm tắt giúp tôi các email từ ngày 1/5 đến 15/5.",
     "Tóm tắt email từ 10/4 đến 30/4 cho tôi với.",

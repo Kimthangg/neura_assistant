@@ -1,6 +1,6 @@
 import json
-
-from bot.agent_calendar import *
+from bot import *
+from services.llm.llm_config import *
 from features import *
 
 
@@ -18,20 +18,22 @@ def full_flow(action_input):
         extraction = {"intent": "normal_message"}
     # Create event
     elif intent == "create_normal_event":
-        extraction = create_event_extraction(user_message)
+        extraction = LLM(system_prompt_create_event, tool_create_event, temperature=0.1)(user_message)
     # get event
     elif intent in ["get_first_calendar", "get_freetime", "get_multi_calendar"]:
         # Extract datetime from text
-        extraction = get_event_extraction(user_message)
+        extraction = LLM(system_prompt_get_event, tool_get_event, temperature=0.1)(user_message)
     # Update event
     elif intent == "update_event":
-        extraction = update_event_extraction(user_message)
+        extraction = LLM(system_prompt_update_event, tool_update_event, temperature=0.1)(user_message)
     # Delete event
     elif intent == "delete_event":
-        extraction = delete_event_extraction(user_message)
+        extraction = LLM(system_prompt_delete_event, tool_delete_event, temperature=0.1)(user_message)
     # ============GMAIL================
-    elif intent == "summary_gmail":
-        extraction = summary_gmail_extraction(user_message)
+    elif intent == "summarize_emails":
+        extraction = LLM(system_prompt_summarize_emails, tool_summarize_emails, temperature=0.1)(user_message)
+    # elif intent == "search_emails":
+    #     extraction = LLM(system_prompt_search_emails, tool_search_emails, temperature=0.1)(user_message)
     print("intent", intent)
     print("extraction", extraction)
     # Add intent to extraction dictionary and return
@@ -41,27 +43,3 @@ def full_flow(action_input):
             json.dump(extraction, f, ensure_ascii=False, indent=2)
             print("Đã lưu extraction vào last_parameter.json")
     return extraction
-
-
-# def call_api(event):
-#     print("Đang gọi api")
-#     try:
-#         if event.get("intent") == "create_normal_event":
-#             event = create_event_api(event)
-#         elif event.get("intent") == "get_first_calendar":
-#             event = get_first_calendar_api(event)
-#         elif event.get("intent") == "get_freetime":
-#             event = get_free_time_api(event)
-#         elif event.get("intent") == "get_multi_calendar":
-#             event = get_multi_calendar_api(event)
-#         elif event.get("intent") == "update_event":
-#             event = update_event_api(event)
-#         elif event.get("intent") == "delete_event":
-#             event = delete_event_api(event)
-#         else:
-#             event = {"error": "Đã xảy ra lỗi khi gọi API"}
-#         print("event", event)
-#         return event
-#     except Exception as e:
-#         print("Lỗi khi gọi API:", e)
-#         return {"error": "Đã xảy ra lỗi khi gọi API"}

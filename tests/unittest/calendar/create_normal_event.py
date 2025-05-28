@@ -10,7 +10,7 @@ import pytest
 warnings.filterwarnings("ignore")
 import time
 
-from bot.agent_calendar.create_event.datetime_extraction import (
+from bot.agent.create_event.datetime_extraction import (
     extract_datetime_from_text,
 )
 from utils import *
