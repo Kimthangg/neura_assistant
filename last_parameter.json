@@ -1,0 +1,17 @@
+{
+  "incorrect_datetime": false,
+  "reminders": {
+    "overrides": [],
+    "usedefault": true
+  },
+  "location": "",
+  "datetime_ranges": [
+    {
+      "rrules": "",
+      "end_datetime": "2025-05-29 11:00:00",
+      "start_datetime": "2025-05-29 07:00:00"
+    }
+  ],
+  "title": "Họp với team AI",
+  "intent": "create_normal_event"
+}

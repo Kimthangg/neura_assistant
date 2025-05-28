@@ -22,25 +22,22 @@ document.addEventListener('DOMContentLoaded', () => {
         sidebar.classList.toggle('collapsed');
         
         // Change button icon based on sidebar state
-        if  (!sidebar.classList.contains('collapsed')) {
+        if  (sidebar.classList.contains('collapsed')) {
             sidebarToggle.innerHTML = '<i class="fas fa-bars"></i>';
             sidebarToggle.setAttribute('title', 'Hiện thanh bên');
         } else {
             sidebarToggle.innerHTML = '<i class="fas fa-expand"></i>';
             sidebarToggle.setAttribute('title', 'Ẩn thanh bên');
         }
-        
         // Save sidebar state in localStorage
         localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
     }
-    
     // Initialize sidebar state from localStorage
     if (localStorage.getItem('sidebarCollapsed') === 'true') {
         sidebar.classList.add('collapsed');
         sidebarToggle.innerHTML = '<i class="fas fa-expand"></i>';
         sidebarToggle.setAttribute('title', 'Hiện thanh bên');
     }
-    
     // Add click event to sidebar toggle button
     sidebarToggle.addEventListener('click', toggleSidebar);
 
@@ -57,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
             contentDiv.innerHTML = '';
             messageDiv.appendChild(contentDiv);
             chatHistory.appendChild(messageDiv);
-            
+    
             // Start the typing simulation
             simulateTypingEffect(contentDiv, content);
         } else {
@@ -74,11 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function simulateTypingEffect(element, text) {
         let index = 0;
         const speed = 2; // milliseconds per character
-        
-        // Process HTML tags
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = text;
-        const textContent = tempDiv.textContent;
         
         // Function to handle HTML tags while typing
         function processTextWithTags() {

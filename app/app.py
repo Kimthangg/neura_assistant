@@ -8,7 +8,7 @@ from flask import Flask, jsonify, render_template, request, session
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "./..")))
 
 # Import required modules from your project
-from bot import agent_calendar_executor_func
+from bot import agent_manager_executor_func
 from db.db_manager import MongoDBManager
 
 # --- Initialization ---
@@ -19,40 +19,46 @@ app.secret_key = os.urandom(24)
 # Initialize MongoDB Manager
 db_manager = MongoDBManager()
 
-
+def format_timezone_for_frontend(conversations):
+    """Convert datetime to Vietnam timezone for frontend"""
+    for conv in conversations:
+        if "updated_at" in conv and isinstance(conv["updated_at"], datetime.datetime):
+            vietnam_time = conv["updated_at"] + datetime.timedelta(hours=7)
+            conv["updated_at"] = vietnam_time.strftime("%Y-%m-%dT%H:%M:%S+07:00")
+    return conversations
 # --- Helper Functions ---
 def ensure_user_id():
     """Ensure user_id exists in session"""
     if "user_id" not in session:
         session["user_id"] = str(uuid.uuid4())
         session["chat_history"] = []
-        session["context"] = {}
-        session["flag"] = False
         session["conversation_name_set"] = False
-
+def format_timezone(conversations,router=None):
+    """Convert datetime to Vietnam timezone for frontend"""
+    for conv in conversations:
+        if "updated_at" in conv and isinstance(conv["updated_at"], datetime.datetime):
+            vietnam_time = conv["updated_at"] + datetime.timedelta(hours=7)
+            if router == "index":
+                conv["updated_at"] = vietnam_time
+            else:
+                conv["updated_at"] = vietnam_time.strftime("%Y-%m-%dT%H:%M:%S+07:00")
+    return conversations
 
 # --- Flask Routes ---
 @app.route("/")
 def index():
     """Render the main chat interface"""
     ensure_user_id()
-
-    # Get list of saved conversations
+    # Lấy ds hội thoại từ cơ sở dữ liệu
     conversation_list = db_manager.get_all_conversations()
-
-    # Chuyển đổi múi giờ từ UTC sang UTC+7 (Việt Nam)
-    for conv in conversation_list:
-        if "updated_at" in conv and isinstance(conv["updated_at"], datetime.datetime):
-            # Thêm 7 tiếng cho múi giờ Việt Nam
-            conv["updated_at"] = conv["updated_at"] + datetime.timedelta(hours=7)
-
+    # Chuyển đổi định dạng thời gian về múi giờ Việt Nam
+    conversation_list = format_timezone(conversation_list,"index")
     return render_template(
         "index.html",
         chat_history=session.get("chat_history", []),
         conversation_list=conversation_list,
-        current_user_id=session.get("user_id", ""),
+        current_chat_id=session.get("user_id", ""),
     )
-
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -67,8 +73,9 @@ def chat():
     user_message = data["message"]
 
     # Process message with LLM - Truyền chat_history từ session vào gen_llm
-    response = agent_calendar_executor_func(user_message)
-    print("Response from LLM:", response)
+    response = agent_manager_executor_func(user_message,session.get('chat_history', []))
+    
+    
     # Update chat history
     if "chat_history" not in session:
         session["chat_history"] = []
@@ -101,8 +108,6 @@ def new_conversation():
     # Create new conversation
     session["user_id"] = str(uuid.uuid4())
     session["chat_history"] = []
-    session["context"] = {}
-    session["flag"] = False
     session["conversation_name_set"] = False
     session.modified = True
 
@@ -121,8 +126,6 @@ def load_conversation(user_id):
     # Update session
     session["user_id"] = user_id
     session["chat_history"] = chat_history
-    session["context"] = {}
-    session["flag"] = False
     session["conversation_name_set"] = True
     session.modified = True
 
@@ -139,8 +142,6 @@ def delete_conversation(user_id):
         if user_id == session.get("user_id"):
             session["user_id"] = str(uuid.uuid4())
             session["chat_history"] = []
-            session["context"] = {}
-            session["flag"] = False
             session["conversation_name_set"] = False
             session.modified = True
 
@@ -153,14 +154,8 @@ def delete_conversation(user_id):
 def get_conversations():
     """Get the list of saved conversations"""
     conversations = db_manager.get_all_conversations()
-
-    # Chuyển đổi đối tượng datetime thành chuỗi ISO8601 để JavaScript xử lý nhất quán
-    for conv in conversations:
-        if "updated_at" in conv and isinstance(conv["updated_at"], datetime.datetime):
-            # Thêm +07:00 để chỉ rõ múi giờ Việt Nam
-            vietnam_time = conv["updated_at"] + datetime.timedelta(hours=7)
-            conv["updated_at"] = vietnam_time.strftime("%Y-%m-%dT%H:%M:%S+07:00")
-
+    # Format the conversation timestamps to Vietnam timezone
+    conversations = format_timezone(conversations)
     return jsonify({"conversations": conversations})
 
 

@@ -116,26 +116,27 @@ agent_executor = create_react_agent_executor(
     option_api=2
 )
 from utils import convert_list_to_messages
-def agent_manager_executor_func(query):
+def agent_manager_executor_func(query, history_chat=None):
     """
-    Hàm thực thi agent_executor với truy vấn đầu vào.
+    Hàm thực thi agent_executor với truy vấn đầu vào và thêm lịch sử chat nếu có.
 
     Parameters:
         query (str): Truy vấn đầu vào từ người dùng.
+        history_chat (list): Lịch sử trò chuyện dạng list (dicts hoặc messages).
 
     Returns:
-        dict: Kết quả trả về từ agent_executor.
-    """  
-    # # Tạo memory để lưu trữ lịch sử trò chuyện
-    # print("history_chat", history_chat)
-    # for item in history_chat:
-    #     if item["type"] == "user":
-    #         memory.chat_memory.add_user_message(item["content"])
-    #     elif item["type"] == "assistant":
-    #         memory.chat_memory.add_ai_message(item["content"])
-    # Gọi agent_executor với truy vấn đầu vào
-    print("\nAgent Manager đang xử lí")
+        str: Kết quả từ agent_executor hoặc thông báo lỗi.
+    """
+    print("Đang load lịch sử chat:", history_chat)
+
+    if history_chat:
+        # Convert lịch sử về messages
+        messages = convert_list_to_messages(history_chat)
+        # Nạp lại vào memory
+        memory.chat_memory.messages = messages
+    else:
+        print("Không có lịch sử chat để nạp vào memory.")
+
+    print("\nAgent Manager đang xử lý...")
     result = agent_executor.invoke({"input": query})
-    # return  result
-    # Trả về kết quả
-    return result.get("output", "Lỗi trong quá trình thực thi!.")
+    return result.get("output", "Lỗi trong quá trình thực thi!")
