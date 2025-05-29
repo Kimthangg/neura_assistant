@@ -1,7 +1,7 @@
 from langchain.agents import AgentExecutor, create_react_agent
 from langchain_openai import ChatOpenAI
 
-from config.environment import API_KEY, API_BASE, MODEL_NAME, API_KEY_2, API_KEY_3
+from config.environment import API_KEY, API_BASE, MODEL_NAME, API_KEY_2, API_KEY_3, API_KEY_4
 
 class LLM:
     def __init__(self, system_message: str, tool: dict, model_name: str = MODEL_NAME, temperature: float = 0.0,):
@@ -55,26 +55,40 @@ class LLM:
 
         return {}
 
-
-def llm_gen(model_name: str = MODEL_NAME, temperature: float = 0.5):
+from langchain.prompts import PromptTemplate
+def llm_summarize(model_name: str = MODEL_NAME, temperature: float = 0.0, option_api: int = 4):
     """
-    Tạo một đối tượng ChatOpenAI dựa trên các thông số được cung cấp.
-    Hàm này tạo và cấu hình một đối tượng ChatOpenAI sử dụng các thông số về model, key API và
-    các cài đặt khác được định nghĩa trước.
+    Tạo một chain xử lý để tóm tắt nội dung email sử dụng mô hình ngôn ngữ lớn.
+    Hàm này khởi tạo một ChatOpenAI instance và kết hợp với một prompt template được thiết kế 
+    để tóm tắt danh sách các email. Prompt yêu cầu mô hình trích xuất thông tin quan trọng 
+    như subject, ngày gửi, người gửi và các thông tin liên quan đến lịch (ngày tháng, địa điểm).
     Parameters:
-        model_name (str, optional): Tên của model OpenAI sẽ được sử dụng.
-                                   Mặc định là giá trị của hằng số MODEL_NAME.
-        temperature (float, optional): Tham số điều chỉnh độ ngẫu nhiên của kết quả sinh ra.
-                                      Mặc định là 1.0.
+        model_name (str, optional): Tên của mô hình OpenAI được sử dụng. 
+                                   Mặc định là giá trị của MODEL_NAME.
+        temperature (float, optional): Tham số nhiệt độ điều chỉnh độ ngẫu nhiên 
+                                      của đầu ra. Mặc định là 0.0.
     Returns:
-        ChatOpenAI: Một đối tượng ChatOpenAI đã được cấu hình, sẵn sàng để sử dụng.
+        Chain: Một chain xử lý kết hợp prompt template và mô hình LLM để tóm tắt email.
     """
-    return ChatOpenAI(
-        api_key=API_KEY_3,
+    llm = ChatOpenAI(
+        api_key=API_KEY_4 if option_api == 4
+                        else API_KEY_2 if option_api == 2
+                        else API_KEY_3,
         openai_api_base=API_BASE,
         model=model_name,
         temperature=temperature,
     )
+    prompt_template = """Bạn là một trợ lý ảo thông minh có khả năng tóm tắt nội dung email. Bạn sẽ nhận vào một danh sách các email và trả về nội dung tóm tắt của chúng kèm các thông tin về subject cũng như ngày gửi, người gửi.
+    Nếu chúng có các thông tin ngày tháng, địa điểm(các nội dung có thể tạo lịch) thì đưa ra các thông tin đó cho người dùng biết
+    Dưới đây là danh sách các email:
+    {mails}
+    Bạn cần tóm tắt nội dung của các email này và trả về một danh sách các câu tóm tắt để người dùng có thể hiểu nhanh nội dung của chúng. Mỗi câu tóm tắt nên ngắn gọn và súc tích, chỉ bao gồm các thông tin quan trọng nhất.
+    Nếu có các thông tin về ngày tháng, địa điểm trong nội dung email thì hãy đưa ra các thông tin đó cho người dùng biết."""
+    prompt = PromptTemplate(
+        input_variables=["mails"],
+        template=prompt_template
+    ) 
+    return prompt | llm
 
 from langchain.memory import ConversationBufferWindowMemory
 memory_bw = ConversationBufferWindowMemory(

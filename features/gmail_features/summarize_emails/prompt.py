@@ -20,11 +20,9 @@ def prompt_summarize_emails():
     2. Trích xuất thời gian được đề cập:
     - Trích xuất tất cả các khoảng ngày được đề cập trong văn bản một cách chính xác.
     - Chuyển đổi sang định dạng ISO chuẩn (YYYY-MM-DD).
-    - Xử lý các mốc thời gian tương đối (hôm nay, ngày mai, tuần sau, v.v.) dựa vào các mốc thời gian đã đề cập, nếu thời gian đã qua thì lấy tuần sau.
-    - Chú ý xử lý thời gian các ngày trong tuần(thứ ba tuần này, thứ 5 tuần sau, v.v.):
-    + Nếu ngày đó là ngày hôm nay thì sử dụng tuần sau
-    + Nếu ngày đó là ngày đã qua thì sử dụng tuần sau
-    + Nếu ngày đó chưa đến thì sử dụng tuần này
+    - Xử lý các mốc thời gian tương đối (hôm nay, hôm qua, , v.v.) dựa vào các mốc thời gian đã đề cập.
+    - Chú ý xử lý thời gian các ngày trong tuần(thứ ba tuần này, v.v.).
+    - Nếu không có thông tin ngày giờ nào được đề cập start_datetime và end_datetime sẽ mặc định là hôm qua đến hôm nay.
     ==> Sử dụng thời gian hiện tại đã đề cập để tùy chỉnh cho chính xác
     3. Trích xuất các thông tin:
     - subject: Xác định chủ đề email dựa trên từ khóa hoặc cụm từ xuất hiện sau "về", "với chủ đề", "liên quan đến". Nếu không có subject được đề cập, trả về chuỗi rỗng.

@@ -243,3 +243,30 @@ def convert_list_to_messages(chat_history_raw) -> list[BaseMessage]:
         elif role == "assistant":
             messages.append(AIMessage(content=content))
     return messages
+
+# ============ Fucntions helper for web ============
+def convert_chat_history_to_html(chat_history):
+    """Convert chat history messages to HTML using markdown2"""
+    import markdown2
+    chat_history_html = []
+    for message in chat_history:
+        if isinstance(message, dict) and "content" in message:
+            content_html = markdown2.markdown(message["content"].replace("\n", "<br>"), extras=["autolink"])
+            chat_history_html.append({
+                "type": message.get("type", ""),
+                "content": content_html
+            })
+        else:
+            chat_history_html.append(message)
+    return chat_history_html
+
+def format_timezone(conversations,router=None):
+    """Convert datetime to Vietnam timezone for frontend"""
+    for conv in conversations:
+        if "updated_at" in conv and isinstance(conv["updated_at"], datetime):
+            vietnam_time = conv["updated_at"] + timedelta(hours=7)
+            if router == "index":
+                conv["updated_at"] = vietnam_time
+            else:
+                conv["updated_at"] = vietnam_time.strftime("%Y-%m-%dT%H:%M:%S+07:00")
+    return conversations

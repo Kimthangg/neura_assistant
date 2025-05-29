@@ -73,8 +73,8 @@ def get_email_content(service, message_id):
 #     text = soup.get_text(separator=' ')
 #     return ' '.join(text.split())
 
-from services.llm.llm_config import llm_gen
-llm = llm_gen(temperature=0.0)
+from services.llm.llm_config import llm_summarize
+llm = llm_summarize(temperature=0.0)
 from langchain.prompts import PromptTemplate
 prompt_template = """Bạn là một trợ lý ảo thông minh có khả năng tóm tắt nội dung email. Bạn sẽ nhận vào một danh sách các email và trả về nội dung tóm tắt của chúng kèm các thông tin về subject.
 Nếu chúng có các thông tin ngày tháng, địa điểm(các nội dung có thể tạo lịch) thì đưa ra các thông tin đó cho người dùng biết

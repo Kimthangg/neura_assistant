@@ -1,4 +1,4 @@
-import datetime
+
 import os
 import sys
 import uuid
@@ -11,6 +11,9 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "./.."))
 from bot import agent_manager_executor_func
 from db.db_manager import MongoDBManager
 
+#Import hàm helper
+from utils import format_timezone, convert_chat_history_to_html
+
 # --- Initialization ---
 app = Flask(__name__)
 # Set a secret key for session management
@@ -19,39 +22,12 @@ app.secret_key = os.urandom(24)
 # Initialize MongoDB Manager
 db_manager = MongoDBManager()
 
-
 # --- Helper Functions ---
 def ensure_user_id():
     """Ensure user_id exists in session"""
     if "user_id" not in session:
         session["user_id"] = str(uuid.uuid4())
         session["conversation_name_set"] = False
-
-def convert_chat_history_to_html(chat_history):
-    """Convert chat history messages to HTML using markdown2"""
-    import markdown2
-    chat_history_html = []
-    for message in chat_history:
-        if isinstance(message, dict) and "content" in message:
-            content_html = markdown2.markdown(message["content"].replace("\n", "<br>"), extras=["autolink"])
-            chat_history_html.append({
-                "type": message.get("type", ""),
-                "content": content_html
-            })
-        else:
-            chat_history_html.append(message)
-    return chat_history_html
-
-def format_timezone(conversations,router=None):
-    """Convert datetime to Vietnam timezone for frontend"""
-    for conv in conversations:
-        if "updated_at" in conv and isinstance(conv["updated_at"], datetime.datetime):
-            vietnam_time = conv["updated_at"] + datetime.timedelta(hours=7)
-            if router == "index":
-                conv["updated_at"] = vietnam_time
-            else:
-                conv["updated_at"] = vietnam_time.strftime("%Y-%m-%dT%H:%M:%S+07:00")
-    return conversations
 
 # --- Flask Routes ---
 @app.route("/")
@@ -111,7 +87,7 @@ def chat():
         db_manager.save_chat_history(session["user_id"], chat_history)    # Mark session as modified to ensure it's saved
     session.modified = True
     response_html = markdown2.markdown(response.replace("\n", "<br>"), extras=["autolink"])  
-    print("Response from agent_manager:", response_html)
+
     return jsonify({"response": response_html})
 
 

@@ -56,21 +56,35 @@ def get_email_content(message_id):
         print(f"[!] Lỗi khi lấy nội dung mail: {e}")
         return ""
 
+from concurrent.futures import ThreadPoolExecutor
+from services.llm.llm_config import llm_summarize
 
-from services.llm.llm_config import llm_gen
-llm = llm_gen(temperature=0.0)
-from langchain.prompts import PromptTemplate
-prompt_template = """Bạn là một trợ lý ảo thông minh có khả năng tóm tắt nội dung email. Bạn sẽ nhận vào một danh sách các email và trả về nội dung tóm tắt của chúng kèm các thông tin về subject cũng như ngày gửi, người gửi.
-Nếu chúng có các thông tin ngày tháng, địa điểm(các nội dung có thể tạo lịch) thì đưa ra các thông tin đó cho người dùng biết
-Dưới đây là danh sách các email:
-{mails}
-Bạn cần tóm tắt nội dung của các email này và trả về một danh sách các câu tóm tắt để người dùng có thể hiểu nhanh nội dung của chúng. Mỗi câu tóm tắt nên ngắn gọn và súc tích, chỉ bao gồm các thông tin quan trọng nhất.
-Nếu có các thông tin về ngày tháng, địa điểm trong nội dung email thì hãy đưa ra các thông tin đó cho người dùng biết."""
-prompt = PromptTemplate(
-    input_variables=["mails"],
-    template=prompt_template
-)
-chain_summarize = prompt | llm
+def summarize_mails(mails):
+    chain_summarize_1 = llm_summarize(option_api=2)
+    chain_summarize_2 = llm_summarize(option_api=3)
+    chain_summarize_3 = llm_summarize(option_api=4)
+    
+    n = len(mails)
+    part1 = mails[:n//3]
+    part2 = mails[n//3: 2*n//3]
+    part3 = mails[2*n//3:]
+    print(f"[*] Số lượng mail: {n}, Chia thành 3 phần: {len(part1)}, {len(part2)}, {len(part3)}")
+    def invoke_chain(chain, emails):
+        return chain.invoke({"mails": emails}).content
+    
+    with ThreadPoolExecutor() as executor:
+        future1 = executor.submit(invoke_chain, chain_summarize_1, part1)
+        future2 = executor.submit(invoke_chain, chain_summarize_2, part2)
+        future3 = executor.submit(invoke_chain, chain_summarize_3, part3)
+        
+        summary1 = future1.result()
+        summary2 = future2.result()
+        summary3 = future3.result()
+    
+    return f"""--- Bản tóm tắt 1 ---\n{summary1}\n\n
+--- Bản tóm tắt 2 ---\n{summary2}\n\n
+\n\n--- Bản tóm tắt 3 ---\n{summary3}\n\n
+Hãy gộp 3 bản tóm tắt này lại với nhau để tạo thành một bản tóm tắt hoàn chỉnh cho người dùng."""
 
 from utils import parse_to_dict
 def summarize_emails_api(args, limit=8):
@@ -94,5 +108,6 @@ def summarize_emails_api(args, limit=8):
     mails = get_mail_in_range(query)
     if limit:
         mails = mails[:limit]
-    return chain_summarize.invoke({"mails": mails}).content
+    # return chain_summarize.invoke({"mails": mails}).content
+    return summarize_mails(mails)
 

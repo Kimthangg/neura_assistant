@@ -78,8 +78,8 @@ Action Input: {{"text": "Tóm tắt email hôm nay", "intent": "summarize_emails
 Observation: Kết quả từ công cụ (đưa ra đầy đủ Action Input bao gồm cả các trường rỗng thông tin).
 ... (chu kỳ Thought/Action/Action Input/Observation này có thể lặp lại N lần)
 Nếu gặp lỗi Missing 'Action:' after 'Thought trong quá trình thực hiện, bạn có thể trả về một thông báo lỗi rõ ràng và cụ thể.
-Nếu đã đủ thông tin hoặc bất kì lỗi nào, bạn có thể trả về kết quả/trạng thái cuối cùng:
-Final Answer: <kết quả/trạng thái>
+Nếu đã đủ thông tin hoặc bất kì lỗi nào, bạn có thể trả về kết quả cuối cùng:
+Final Answer: <kết quả>
 - Đối với tóm tắt email, bạn sẽ trả về bản tóm tắt, đồng thời nếu có các thông tin về ngày tháng, địa điểm, link cuộc họp trong nội dung email thì hãy đưa ra các thông tin đó cho người dùng biết.
 - Nếu có nhiều email được tóm tắt, hãy đưa ra danh sách được đánh số (1,2,3,...) các email đã được tóm tắt.
 - Kết quả bạn đưa ra để cho 1 agent khác xử lý tiếp, vì vậy hãy đảm bảo rằng kết quả FINAL ANSWER và sử dụng bởi agent khác.
