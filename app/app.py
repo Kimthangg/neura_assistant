@@ -25,8 +25,23 @@ def ensure_user_id():
     """Ensure user_id exists in session"""
     if "user_id" not in session:
         session["user_id"] = str(uuid.uuid4())
-        session["chat_history"] = []
         session["conversation_name_set"] = False
+
+def convert_chat_history_to_html(chat_history):
+    """Convert chat history messages to HTML using markdown2"""
+    import markdown2
+    chat_history_html = []
+    for message in chat_history:
+        if isinstance(message, dict) and "content" in message:
+            content_html = markdown2.markdown(message["content"].replace("\n", "<br>"), extras=["autolink"])
+            chat_history_html.append({
+                "type": message.get("type", ""),
+                "content": content_html
+            })
+        else:
+            chat_history_html.append(message)
+    return chat_history_html
+
 def format_timezone(conversations,router=None):
     """Convert datetime to Vietnam timezone for frontend"""
     for conv in conversations:
@@ -47,9 +62,15 @@ def index():
     conversation_list = db_manager.get_all_conversations()
     # Chuyển đổi định dạng thời gian về múi giờ Việt Nam
     conversation_list = format_timezone(conversation_list,"index")
+      # Get current chat history from database instead of session
+    current_chat_history = db_manager.load_chat_history(session["user_id"])
+    
+    # Convert chat history messages to HTML using markdown2
+    chat_history_html = convert_chat_history_to_html(current_chat_history)
+    
     return render_template(
         "index.html",
-        chat_history=session.get("chat_history", []),
+        chat_history=chat_history_html,
         conversation_list=conversation_list,
         current_chat_id=session.get("user_id", ""),
     )
@@ -67,16 +88,15 @@ def chat():
 
     user_message = data["message"]
 
-    # Process message with LLM - Truyền chat_history từ session vào gen_llm
-    response = agent_manager_executor_func(user_message,session.get('chat_history', []))
+    # Load chat history from database instead of session
+    chat_history = db_manager.load_chat_history(session["user_id"])
     
+    # Process message with LLM - Truyền chat_history từ database vào gen_llm
+    response = agent_manager_executor_func(user_message, chat_history)
     
-    # Update chat history
-    if "chat_history" not in session:
-        session["chat_history"] = []
-
-    session["chat_history"].append({"type": "user", "content": user_message})
-    session["chat_history"].append({"type": "assistant", "content": response})
+    # Update chat history in database
+    chat_history.append({"type": "user", "content": user_message})
+    chat_history.append({"type": "assistant", "content": response})
 
     # Set conversation name if this is the first message
     if not session.get("conversation_name_set", False):
@@ -85,15 +105,14 @@ def chat():
             conversation_name += "..."
         session["conversation_name_set"] = True
         db_manager.save_chat_history(
-            session["user_id"], session["chat_history"], conversation_name
+            session["user_id"], chat_history, conversation_name
         )
     else:
-        db_manager.save_chat_history(session["user_id"], session["chat_history"])
-
-    # Mark session as modified to ensure it's saved
+        db_manager.save_chat_history(session["user_id"], chat_history)    # Mark session as modified to ensure it's saved
     session.modified = True
-
-    return jsonify({"response": response})
+    response_html = markdown2.markdown(response.replace("\n", "<br>"), extras=["autolink"])  
+    print("Response from agent_manager:", response_html)
+    return jsonify({"response": response_html})
 
 
 @app.route("/new_conversation", methods=["POST"])
@@ -102,7 +121,6 @@ def new_conversation():
 
     # Create new conversation
     session["user_id"] = str(uuid.uuid4())
-    session["chat_history"] = []
     session["conversation_name_set"] = False
     session.modified = True
 
@@ -113,18 +131,18 @@ def new_conversation():
 def load_conversation(user_id):
     """Load a saved conversation"""
     if user_id == session.get("user_id"):
-        return jsonify({"success": False, "message": "Đây là hội thoại hiện tại"})
-
-    # Load chat history from database
+        return jsonify({"success": False, "message": "Đây là hội thoại hiện tại"})    # Load chat history from database
     chat_history = db_manager.load_chat_history(user_id)
 
     # Update session
     session["user_id"] = user_id
-    session["chat_history"] = chat_history
     session["conversation_name_set"] = True
     session.modified = True
-
-    return jsonify({"success": True, "chat_history": chat_history})
+    
+    # Convert chat history messages to HTML using markdown2
+    chat_history_html = convert_chat_history_to_html(chat_history)
+    
+    return jsonify({"success": True, "chat_history": chat_history_html})
 
 
 @app.route("/delete_conversation/<user_id>", methods=["POST"])
@@ -136,7 +154,6 @@ def delete_conversation(user_id):
         # If deleted the current conversation, create a new one
         if user_id == session.get("user_id"):
             session["user_id"] = str(uuid.uuid4())
-            session["chat_history"] = []
             session["conversation_name_set"] = False
             session.modified = True
 
