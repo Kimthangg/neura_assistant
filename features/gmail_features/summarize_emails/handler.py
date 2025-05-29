@@ -5,9 +5,8 @@ from bs4 import BeautifulSoup
 
 service = xac_thuc_gmail()
 
-def get_mail_in_range(start_date, end_date):
+def get_mail_in_range(query):
     """Lấy danh sách mail (không chứa 'Re:') trong khoảng thời gian (chỉ ở mục Primary)."""
-    query = f"after:{start_date} before:{end_date} -subject:Re category:primary"
     response = service.users().messages().list(userId='me', q=query).execute()
     messages = response.get('messages', [])
 
@@ -61,7 +60,7 @@ def get_email_content(message_id):
 from services.llm.llm_config import llm_gen
 llm = llm_gen(temperature=0.0)
 from langchain.prompts import PromptTemplate
-prompt_template = """Bạn là một trợ lý ảo thông minh có khả năng tóm tắt nội dung email. Bạn sẽ nhận vào một danh sách các email và trả về nội dung tóm tắt của chúng kèm các thông tin về subject.
+prompt_template = """Bạn là một trợ lý ảo thông minh có khả năng tóm tắt nội dung email. Bạn sẽ nhận vào một danh sách các email và trả về nội dung tóm tắt của chúng kèm các thông tin về subject cũng như ngày gửi, người gửi.
 Nếu chúng có các thông tin ngày tháng, địa điểm(các nội dung có thể tạo lịch) thì đưa ra các thông tin đó cho người dùng biết
 Dưới đây là danh sách các email:
 {mails}
@@ -74,10 +73,25 @@ prompt = PromptTemplate(
 chain_summarize = prompt | llm
 
 from utils import parse_to_dict
-def summarize_emails_api(args, limit=20):
+def summarize_emails_api(args, limit=8):
     """Tổng hợp context mail trong khoảng thời gian đã cho."""
     args = parse_to_dict(args)
-    mails = get_mail_in_range(args["start_date"], args["end_date"])
+    query = []
+    query.append("-subject:Re")  # Loại bỏ các email đã trả lời
+    query.append("category:primary")  # Chỉ lấy email trong mục Primary
+    if args['sender']:
+        query.append(f"from:{args['sender']}")
+    if args['subject']:
+        query.append(f"subject:{args['subject']}")
+    if args['keyword']:
+        query.append(f"{args['keyword']}")
+    if args['start_date']:
+        query.append(f"after:{args['start_date']}")
+    if args['end_date']:
+        query.append(f"before:{args['end_date']}")
+    #Tạo bộ lọc query
+    query = " ".join(query)
+    mails = get_mail_in_range(query)
     if limit:
         mails = mails[:limit]
     return chain_summarize.invoke({"mails": mails}).content

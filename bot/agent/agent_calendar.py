@@ -118,18 +118,20 @@ def agent_calendar_executor_func(query):
     Returns:
         dict: Kết quả trả về từ agent_executor.
     """
-    if os.path.exists("last_parameter.json"):
+    last_parameters_path = "last_parameter.json"
+    if os.path.exists(last_parameters_path):
         try:
-            with open("last_params_path", 'r', encoding='utf-8') as file:
+            with open(last_parameters_path, 'r', encoding='utf-8') as file:
                 last_params = json.load(file)
                 print("Last parameters loaded:", last_params)
             # Gắn thông tin từ file vào query
             query = f"Câu truy vấn của người dùng:{query}\n[Last parameters: {json.dumps(last_params, ensure_ascii=False)}]"
             # Xóa file sau khi đã sử dụng
-            os.remove("last_parameter.json")
+            os.remove(last_parameters_path)
         except (json.JSONDecodeError, FileNotFoundError):
             # Nếu có lỗi đọc file, tiếp tục với query gốc
-            pass
+            os.remove(last_parameters_path)
+
     print("\nAgent caledar đang xử lí")
     
     # Gọi agent_executor với truy vấn đầu vào

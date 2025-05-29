@@ -21,4 +21,18 @@ summarize_emails_example = [
     # Các biến thể khác
     "Tóm tắt mail hôm qua với hôm nay.",
     "tôi cần biết nội dung email trong 3 ngày gần nhất."
+    # Theo độ ưu tiên/loại email
+    "Tóm tắt những email quan trọng từ đầu tuần đến giờ.",
+    "Tóm tắt các email không phải spam trong tháng 5.",
+    "Tóm tắt giúp tôi email từ các đối tác kinh doanh trong quý vừa rồi.",
+    
+    # Tùy chọn tóm tắt
+    "Tóm tắt ngắn gọn các email từ tuần trước.",
+    "Tóm tắt chi tiết email hôm qua cho tôi.",
+    "Xem và tóm tắt email chưa đọc trong 2 tuần qua.",
+    
+    # Câu hỏi về email cụ thể
+    "Tóm tắt email có chủ đề về dự án XYZ trong tháng này.",
+    "Có email nào từ công ty ABC trong tuần này không? Tóm tắt giúp tôi.",
+    "Tóm tắt email có đính kèm file trong tháng vừa qua."
 ]

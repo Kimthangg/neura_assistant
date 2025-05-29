@@ -16,7 +16,7 @@ from email import message_from_bytes
 
 def get_mail_in_range(service, start_date, end_date):
     """Lấy danh sách mail (không chứa 'Re:') trong khoảng thời gian (chỉ ở mục Primary)."""
-    query = f"after:{start_date} before:{end_date} -subject:Re category:primary"
+    query = f"after:{start_date} before:{end_date} -subject:Re category:primary from:'Bảo ngọc' subject:'phỏng vấn'"
     response = service.users().messages().list(userId='me', q=query).execute()
     messages = response.get('messages', [])
 
@@ -28,7 +28,7 @@ def get_mail_in_range(service, start_date, end_date):
         subject = next((h['value'] for h in headers if h['name'] == 'Subject'), "")
         sender = next((h['value'] for h in headers if h['name'] == 'From'), "")
         timestamp = int(msg_detail.get("internalDate", 0))  # milliseconds
-        content = get_email_content(service, msg['id'])
+        # content = get_email_content(service, msg['id'])
         from datetime import datetime
         sent_time = datetime.fromtimestamp(timestamp / 1000).strftime('%Y-%m-%d %H:%M:%S')
 
@@ -36,7 +36,7 @@ def get_mail_in_range(service, start_date, end_date):
             'id': msg['id'],
             'subject': subject,
             'from': sender,
-            'content': content,
+            # 'content': content,
             'time': sent_time
         })
     return mail_list
@@ -93,11 +93,12 @@ def get_context_mail_api(service,args, limit=10):
     mails = get_mail_in_range(service, args["start_date"], args["end_date"])
     if limit:
         mails = mails[:limit]
-    # return mails
-    return chain_summarize.invoke({"mails": mails}).content
+    return mails
+    # return chain_summarize.invoke({"mails": mails}).content
 
 args = {
     "start_date": "2025-05-08",
-    "end_date": "2025-05-09"
+    "end_date": "2025-05-11",
+    "from": "Bảo Ngọc",
 }
 print(get_context_mail_api(service,args))

@@ -52,8 +52,7 @@ prompt_template = PromptTemplate(
     - Nếu không rõ ý định, hãy hỏi lại người dùng để lấy thông tin chính xác hơn
     - Nếu có yêu cầu phức tạp liên quan đến cả hai: chia nhỏ và xử lý tuần tự
 
-    Hãy sử dụng định dạng sau để trả lời:
-
+    Hãy sử dụng định dạng sau để trả lời nếu sử dụng tool agent_calendar hoặc agent_gmail:
     Question: câu hỏi mà bạn phải trả lời
     Thought: phân tích ý định người dùng và xác định agent phù hợp
     Action: hành động cần thực hiện, phải là một trong [{tool_names}]
@@ -77,10 +76,15 @@ prompt_template = PromptTemplate(
         Input 2: Đúng rồi
         Thought 2: Người dùng đã xác nhận thông tin "Tạo lịch họp vào sáng mai lúc 9h". Tôi sẽ tiến hành tạo sự kiện lịch.
         Action 2: agent_calendar
-        Action Input 2: Tạo sự kiện với dữ liệu trước đó đã xử lý
+        Action Input 2: Người dùng đã xác nhận thông tin "Tạo lịch họp vào sáng mai lúc 9h". Tôi sẽ tiến hành tạo sự kiện lịch.
         Observation: Sự kiện lịch đã được tạo thành công vào sáng mai (2025-05-26) từ 09:00 đến 09:00. Địa điểm không được cung cấp
         Final Answer 2: Sự kiện lịch đã được tạo thành công vào sáng mai (2025-05-26) từ 09:00 đến 09:00. Địa điểm không được cung cấp
     
+    Hãy sử dụng định dạng sau để trả lời các câu hỏi không liên quan đến lịch hoặc email:
+    Input: câu hỏi của người dùng
+    Final Answer: câu trả lời tự nhiên và hữu ích cho người dùng
+    
+    Bắt đầu:
     Question: {input}
     {agent_scratchpad}"""
 )
@@ -108,7 +112,7 @@ def agent_manager_executor_func(query, history_chat=None):
     Returns:
         str: Kết quả từ agent_executor hoặc thông báo lỗi.
     """
-    print("Đang load lịch sử chat:", history_chat)
+    # print("Đang load lịch sử chat:", history_chat)
 
     if history_chat:
         # Convert lịch sử về messages

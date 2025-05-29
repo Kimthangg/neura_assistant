@@ -19,13 +19,7 @@ app.secret_key = os.urandom(24)
 # Initialize MongoDB Manager
 db_manager = MongoDBManager()
 
-def format_timezone_for_frontend(conversations):
-    """Convert datetime to Vietnam timezone for frontend"""
-    for conv in conversations:
-        if "updated_at" in conv and isinstance(conv["updated_at"], datetime.datetime):
-            vietnam_time = conv["updated_at"] + datetime.timedelta(hours=7)
-            conv["updated_at"] = vietnam_time.strftime("%Y-%m-%dT%H:%M:%S+07:00")
-    return conversations
+
 # --- Helper Functions ---
 def ensure_user_id():
     """Ensure user_id exists in session"""
@@ -60,6 +54,7 @@ def index():
         current_chat_id=session.get("user_id", ""),
     )
 
+import markdown2
 @app.route("/chat", methods=["POST"])
 def chat():
     """Handle incoming chat messages"""

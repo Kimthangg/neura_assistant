@@ -22,7 +22,7 @@ class MongoDBManager:
             self.collection = self.db[COLLECTION_NAME]
             # Create index for chat_id for faster queries
             self.collection.create_index("chat_id")
-            print(f"Kết nối MongoDB thành công - {MONGO_URI}")
+            print(f"Kết nối MongoDB thành công")
         except Exception as e:
             print(f"Error connecting to MongoDB: {e}")
             self.client = None

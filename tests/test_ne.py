@@ -33,10 +33,10 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "./.."))
 #       start_new: {response['datetime_ranges'][0]['start_new']}
 #       end_new: {response['datetime_ranges'][0]['end_new']}""")
 
-from features.gmail_features import system_prompt_summarize_emails,tool_summarize_emails
+from features.gmail_features import system_prompt_summarize_emails,tool_summarize_emails, summarize_emails_api
 from services.llm.llm_config import LLM
 
-prompt = "Tóm tắt giúp tôi các email từ ngày 08/5 đến 10/5"
+prompt = "Tóm tắt các email phỏng vấn trong tháng này"
 result = LLM(system_prompt_summarize_emails, tool_summarize_emails, temperature=0.1)(prompt)
 print(result)
-# print(get_context_mail_api(result))
+print(summarize_emails_api(result))
