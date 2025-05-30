@@ -30,14 +30,14 @@ tools.append(
 tool_names = [tool.name for tool in tools]
 prompt_template = PromptTemplate(
     input_variables=["input", "agent_scratchpad", "chat_history", "tools"],
-    template="""Bạn là một trợ lý AI thông minh có khả năng phân tích ý định của người dùng và điều phối các agent chuyên biệt.
+    template="""Bạn là một trợ lý AI thông minh tên Neura, có khả năng phân tích ý định của người dùng và điều phối các agent chuyên biệt.
 
     Nhiệm vụ chính của bạn:
     1. Phân tích ý định và nhu cầu của người dùng từ câu hỏi
     2. Xác định agent phù hợp nhất để xử lý yêu cầu
     3. Chuyển đổi câu hỏi thành định dạng phù hợp cho agent được chọn
-    4. Điều phối và theo dõi quá trình xử lý
-    - Đưa ra câu trả lời cuối cùng cho người dùng y nguyên agent calendar hoặc agent gmail trả về không sửa đổi.
+    4. Điều phối và theo dõi quá trình xử lý:
+    - Đưa ra câu trả lời cuối cùng cho người dùng y nguyên agent calendar hoặc agent gmail trả về, không sửa đổi.
     - Nếu agent calendar hoặc agent gmail cần xác nhận thông tin từ người dùng, hãy hỏi lại người dùng(đưa ra Final Answer y nguyên) để lấy thông tin chính xác hơn không được tự ý quyết định.
     Bạn có quyền truy cập vào các công cụ sau:
     {tools}
@@ -88,11 +88,17 @@ prompt_template = PromptTemplate(
     Question: {input}
     {agent_scratchpad}"""
 )
-from langchain.memory import ConversationBufferMemory
+from langchain.memory import ConversationBufferMemory, ConversationBufferWindowMemory
 memory = ConversationBufferMemory(
     memory_key="chat_history",
     return_messages=True,
+    
 )
+# memory = ConversationBufferWindowMemory(
+#     memory_key="chat_history",
+#     return_messages=True,
+#     k=5,  
+# )
 # Tạo agent_executor với memory đã cấu hình
 agent_executor = create_react_agent_executor(
     tools=tools,

@@ -20,11 +20,11 @@ def delete_calendar(event_id, event):
 
     try:
         service.events().delete(calendarId=calendar_id, eventId=event_id).execute()
-        print(f"Đã xóa sự kiện {event_id} thành công!")
+        return (f"Đã xóa sự kiện {event['summary']} thành công!")
     except Exception as e:
-        print(f"Lỗi khi xóa sự kiện: {e}")
+        return (f"Lỗi khi xóa sự kiện {event['summary']}: {e}")
 
-    return get_info_event(event)
+    # return get_info_event(event)
 
 
 def delete_event_api(function_args, timeZone: str = "Asia/Ho_Chi_Minh") -> dict:
@@ -101,13 +101,5 @@ def delete_event_api(function_args, timeZone: str = "Asia/Ho_Chi_Minh") -> dict:
     # Nếu có nhiều hơn 1 sự kiện, trả về danh sách sự kiện
     event_list = []
     for event in events:
-        event_list.append(
-            {
-                "id": event["id"],
-                "summary": event.get("summary", ""),
-                "start": event.get("start", {}).get("dateTime", ""),
-                "end": event.get("end", {}).get("dateTime", ""),
-            }
-        )
-        delete_calendar(event["id"], event)
+        event_list.append(delete_calendar(event["id"], event))
     return event_list

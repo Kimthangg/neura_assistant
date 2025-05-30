@@ -63,28 +63,42 @@ def summarize_mails(mails):
     chain_summarize_1 = llm_summarize(option_api=2)
     chain_summarize_2 = llm_summarize(option_api=3)
     chain_summarize_3 = llm_summarize(option_api=4)
-    
+
     n = len(mails)
-    part1 = mails[:n//3]
-    part2 = mails[n//3: 2*n//3]
-    part3 = mails[2*n//3:]
+    part1 = mails[:n // 3]
+    part2 = mails[n // 3: 2 * n // 3]
+    part3 = mails[2 * n // 3:]
     print(f"[*] Số lượng mail: {n}, Chia thành 3 phần: {len(part1)}, {len(part2)}, {len(part3)}")
+
     def invoke_chain(chain, emails):
+        print('Đang tóm tắt emails...')
         return chain.invoke({"mails": emails}).content
-    
+
+    summaries = []
     with ThreadPoolExecutor() as executor:
-        future1 = executor.submit(invoke_chain, chain_summarize_1, part1)
-        future2 = executor.submit(invoke_chain, chain_summarize_2, part2)
-        future3 = executor.submit(invoke_chain, chain_summarize_3, part3)
-        
-        summary1 = future1.result()
-        summary2 = future2.result()
-        summary3 = future3.result()
-    
-    return f"""--- Bản tóm tắt 1 ---\n{summary1}\n\n
---- Bản tóm tắt 2 ---\n{summary2}\n\n
-\n\n--- Bản tóm tắt 3 ---\n{summary3}\n\n
-Hãy gộp 3 bản tóm tắt này lại với nhau để tạo thành một bản tóm tắt hoàn chỉnh cho người dùng."""
+        futures = []
+
+        if part1:
+            futures.append(executor.submit(invoke_chain, chain_summarize_1, part1))
+        else:
+            summaries.append("--- Bản tóm tắt 1 ---\n(Không có email)\n\n")
+
+        if part2:
+            futures.append(executor.submit(invoke_chain, chain_summarize_2, part2))
+        else:
+            summaries.append("--- Bản tóm tắt 2 ---\n(Không có email)\n\n")
+
+        if part3:
+            futures.append(executor.submit(invoke_chain, chain_summarize_3, part3))
+        else:
+            summaries.append("--- Bản tóm tắt 3 ---\n(Không có email)\n\n")
+
+        # Lấy kết quả từ futures theo thứ tự ban đầu
+        for idx, future in enumerate(futures):
+            summaries.append(f"--- Bản tóm tắt {idx+1} ---\n{future.result()}\n\n")
+
+    summaries.append("Hãy gộp 3 bản tóm tắt này lại với nhau để tạo thành một bản tóm tắt hoàn chỉnh cho người dùng.")
+    return "\n".join(summaries)
 
 from utils import parse_to_dict
 def summarize_emails_api(args, limit=8):

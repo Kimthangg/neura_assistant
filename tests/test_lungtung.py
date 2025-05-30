@@ -67,12 +67,6 @@ def get_email_content(service, message_id):
         print(f"[!] Lỗi khi lấy nội dung mail: {e}")
         return ""
 
-# from bs4 import BeautifulSoup
-# def clean_email_content(content):
-#     soup = BeautifulSoup(content, 'html.parser')
-#     text = soup.get_text(separator=' ')
-#     return ' '.join(text.split())
-
 from services.llm.llm_config import llm_summarize
 llm = llm_summarize(temperature=0.0)
 from langchain.prompts import PromptTemplate
