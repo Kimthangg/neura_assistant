@@ -71,7 +71,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function simulateTypingEffect(element, text) {
         let index = 0;
         const speed = 2; // milliseconds per character
-        
+        let autoScroll = true;
+
+        // Listen for scroll events
+        chatHistory.addEventListener('scroll', () => {
+            const nearBottom = (chatHistory.scrollHeight - chatHistory.scrollTop - chatHistory.clientHeight) < 5;
+            autoScroll = nearBottom;
+        });
         // Function to handle HTML tags while typing
         function processTextWithTags() {
             if (index < text.length) {
@@ -86,8 +92,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     currentSpeed = speed * 3; // Pause longer at punctuation
                 }
                 
-                // Scroll to the bottom as text is typed
-                chatHistory.scrollTop = chatHistory.scrollHeight;
+                // Only scroll if user hasn't scrolled up
+                if (autoScroll) {
+                    chatHistory.scrollTop = chatHistory.scrollHeight;
+                }
                 
                 // Continue typing
                 setTimeout(processTextWithTags, currentSpeed);
