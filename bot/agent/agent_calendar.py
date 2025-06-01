@@ -100,14 +100,13 @@ Bắt đầu!
 Question: {input}
 Thought:{agent_scratchpad}""",
 )
-
-
-# Tạo agent_executor với memory đã cấu hình
-agent_executor = create_react_agent_executor(
-    tools=tools,
-    prompt_template=prompt_template,
-    option_api=1
+from langchain.memory import ConversationBufferWindowMemory
+memory_calendar = ConversationBufferWindowMemory(
+    memory_key="chat_history", 
+    k=3, 
+    return_messages=True,
 )
+
 def agent_calendar_executor_func(query):
     """
     Hàm thực thi agent_executor với truy vấn đầu vào.
@@ -133,7 +132,13 @@ def agent_calendar_executor_func(query):
             os.remove(last_parameters_path)
 
     print("\nAgent caledar đang xử lí")
-    
+    # Tạo agent_executor với memory đã cấu hình
+    agent_executor = create_react_agent_executor(
+        tools=tools,
+        prompt_template=prompt_template,
+        memory=memory_calendar,
+        option_api=1
+    )
     # Gọi agent_executor với truy vấn đầu vào
     result = agent_executor.invoke({"input": query})
     # return  result

@@ -90,15 +90,15 @@ def llm_summarize(model_name: str = MODEL_NAME, temperature: float = 0.0, option
     ) 
     return prompt | llm
 
-from langchain.memory import ConversationBufferWindowMemory
-memory_bw = ConversationBufferWindowMemory(
-    memory_key="chat_history", k=3, 
-    return_messages=True,
-)
+# from langchain.memory import ConversationBufferWindowMemory
+# memory_bw = ConversationBufferWindowMemory(
+#     memory_key="chat_history", k=3, 
+#     return_messages=True,
+# )
 def create_react_agent_executor(
     prompt_template,
     tools,
-    memory=memory_bw,
+    memory=None,
     model_name: str = MODEL_NAME,
     temperature: float = 0.0,
     option_api = 1,  # 1: API_KEY, 2: API_KEY_2, 3: API_KEY_3
@@ -124,6 +124,8 @@ def create_react_agent_executor(
         model=model_name,
         temperature=temperature,
     )
+    print("\nLịch sử chat đã được nạp vào memory:", memory.chat_memory.messages)
+    
     # Tạo ReAct agent
     agent = create_react_agent(llm, tools, prompt_template)
 

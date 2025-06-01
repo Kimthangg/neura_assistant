@@ -88,24 +88,9 @@ prompt_template = PromptTemplate(
     Question: {input}
     {agent_scratchpad}"""
 )
-from langchain.memory import ConversationBufferMemory, ConversationBufferWindowMemory
-memory = ConversationBufferMemory(
-    memory_key="chat_history",
-    return_messages=True,
-    
-)
-# memory = ConversationBufferWindowMemory(
-#     memory_key="chat_history",
-#     return_messages=True,
-#     k=5,  
-# )
-# Tạo agent_executor với memory đã cấu hình
-agent_executor = create_react_agent_executor(
-    tools=tools,
-    memory=memory,
-    prompt_template=prompt_template,
-    option_api=2
-)
+from langchain.memory import ConversationBufferMemory
+
+
 from utils import convert_list_to_messages
 def agent_manager_executor_func(query, history_chat=None):
     """
@@ -119,15 +104,25 @@ def agent_manager_executor_func(query, history_chat=None):
         str: Kết quả từ agent_executor hoặc thông báo lỗi.
     """
     # print("Đang load lịch sử chat:", history_chat)
-
+    memory_manager = ConversationBufferMemory(
+    memory_key="chat_history",
+    return_messages=True,
+    )
     if history_chat:
         # Convert lịch sử về messages
         messages = convert_list_to_messages(history_chat)
         # Nạp lại vào memory
-        memory.chat_memory.messages = messages
+        memory_manager.chat_memory.messages = messages
     else:
         print("Không có lịch sử chat để nạp vào memory.")
-
+    # print("\nLịch sử chat đã được nạp vào memory:", memory_manager.chat_memory.messages)
+    # Tạo agent_executor với memory đã cấu hình
+    agent_executor = create_react_agent_executor(
+        tools=tools,
+        memory=memory_manager,
+        prompt_template=prompt_template,
+        option_api=2
+    )
     print("\nAgent Manager đang xử lý...")
     result = agent_executor.invoke({"input": query})
     return result.get("output", "Lỗi trong quá trình thực thi!")

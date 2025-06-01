@@ -32,8 +32,6 @@ def full_flow(action_input):
     # ============GMAIL================
     elif intent == "summarize_emails":
         extraction = LLM(system_prompt_summarize_emails, tool_summarize_emails, temperature=0.1)(user_message)
-    # elif intent == "search_emails":
-    #     extraction = LLM(system_prompt_search_emails, tool_search_emails, temperature=0.1)(user_message)
     print("intent", intent)
     print("extraction", extraction)
     # Add intent to extraction dictionary and return

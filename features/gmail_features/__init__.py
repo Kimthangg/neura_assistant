@@ -9,10 +9,4 @@ gmail_features_map = {
         "tools": tool_summarize_emails,
         "extraction_system_message": system_prompt_summarize_emails
     }
-    # "search_gmail": {
-    #     "handler_message": search_emails_api,
-    #     "example": search_emails_example,
-    #     "tools": None,  # Assuming no specific tool for this feature
-    #     "extraction_system_message": ""
-    # }
 }

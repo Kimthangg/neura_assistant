@@ -63,7 +63,7 @@ Truyền vào tool extract_datetime các thông tin sau:
 - Đối số "intent" PHẢI là một trong các giá trị {tool_names} dựa vào ý định của người dùng
 Ví dụ:
 - Nếu người dùng hỏi "Tóm tắt email trong tuần này", intent sẽ là 'summarize_emails'
-- Nếu người dùng hỏi "Tìm email từ john@example.com", intent sẽ là 'search_emails'
+- Nếu người dùng hỏi "Tìm email từ john@example.com", intent sẽ là 'summarize_emails'
 
 Action: Tên của công cụ cần sử dụng, được chọn từ {tool_names}.
 Action Input:
@@ -88,13 +88,13 @@ Bắt đầu!
 Question: {input}
 Thought:{agent_scratchpad}""",
 )
-
-# Tạo agent_executor với memory đã cấu hình
-agent_executor = create_react_agent_executor(
-    tools=tools,
-    prompt_template=prompt_template,
-    option_api=1
+from langchain.memory import ConversationBufferWindowMemory
+memory_gmail = ConversationBufferWindowMemory(
+    memory_key="chat_history", 
+    k=3, 
+    return_messages=True,
 )
+
 
 def agent_gmail_executor_func(query):
     """
@@ -107,7 +107,13 @@ def agent_gmail_executor_func(query):
         dict: Kết quả trả về từ agent_executor.
     """
     print("\nAgent Gmail đang xử lí")
-    
+    # Tạo agent_executor với memory đã cấu hình
+    agent_executor = create_react_agent_executor(
+        tools=tools,
+        prompt_template=prompt_template,
+        memory=memory_gmail,
+        option_api=1
+    )
     # Gọi agent_executor với truy vấn đầu vào
     result = agent_executor.invoke({"input": query})
     # Trả về kết quả

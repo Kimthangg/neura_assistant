@@ -63,16 +63,16 @@ def prompt_summarize_emails():
     "end_datetime": "",
     "incorrect_datetime": true,
     "subject": "dự án mới",
-    "sender": "công ty ABC",
+    "sender": "ABC",
     "keyword": "hợp đồng"
     }}
-    4. "Tìm các email tuần trước từ giám đốc dự án về đề xuất ngân sách có chứa thông tin tài chính":
+    4. "Tìm các email tuần trước từ giám đốc Toàn về đề xuất ngân sách có chứa thông tin tài chính":
     {{
     "start_datetime": "{last_weeks_list[0].strftime('%Y-%m-%d')}",
     "end_datetime": ""{(last_weeks_list[6]+timedelta(days=1)).strftime('%Y-%m-%d')}"",
     "incorrect_datetime": false,
     "subject": "đề xuất ngân sách",
-    "sender": "giám đốc dự án",
+    "sender": "Toàn",
     "keyword": "thông tin tài chính"
     }}
     5. "Tóm tắt email từ phòng nhân sự về quy định mới có đề cập đến chế độ làm việc từ xa":
