@@ -96,7 +96,7 @@ memory_gmail = ConversationBufferWindowMemory(
 )
 
 
-def agent_gmail_executor_func(query):
+def agent_gmail_executor_func(query,flag=False):
     """
     Hàm thực thi agent_executor với truy vấn đầu vào.
 
@@ -106,15 +106,18 @@ def agent_gmail_executor_func(query):
     Returns:
         dict: Kết quả trả về từ agent_executor.
     """
-    print("\nAgent Gmail đang xử lí")
-    # Tạo agent_executor với memory đã cấu hình
-    agent_executor = create_react_agent_executor(
-        tools=tools,
-        prompt_template=prompt_template,
-        memory=memory_gmail,
-        option_api=1
-    )
-    # Gọi agent_executor với truy vấn đầu vào
-    result = agent_executor.invoke({"input": query})
-    # Trả về kết quả
-    return result.get("output", "Lỗi trong quá trình thực thi!.")
+    if flag:
+        memory_gmail.clear()
+    else:
+        print("\nAgent Gmail đang xử lí")
+        # Tạo agent_executor với memory đã cấu hình
+        agent_executor = create_react_agent_executor(
+            tools=tools,
+            prompt_template=prompt_template,
+            memory=memory_gmail,
+            option_api=1
+        )
+        # Gọi agent_executor với truy vấn đầu vào
+        result = agent_executor.invoke({"input": query})
+        # Trả về kết quả
+        return result.get("output", "Lỗi trong quá trình thực thi!.")

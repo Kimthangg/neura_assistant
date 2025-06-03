@@ -2,15 +2,14 @@ from langchain.agents import AgentExecutor, create_react_agent
 from langchain_openai import ChatOpenAI
 
 from config.environment import API_KEY, API_BASE, MODEL_NAME, API_KEY_2, API_KEY_3, API_KEY_4
-
+import random
 class LLM:
-    # _api_keys = {
-    #     1: API_KEY,
-    #     2: API_KEY_2,
-    #     3: API_KEY_3,
-    #     4: API_KEY_4,
-    # }
-    # _counter = 0
+    _api_keys = {
+        1: API_KEY,
+        2: API_KEY_2,
+        3: API_KEY_3,
+        4: API_KEY_4,
+    }
     def __init__(self, system_message: str, tool: dict, model_name: str = MODEL_NAME, temperature: float = 0.0):
         """
         Initializes the LLM class with a specified system message, tool, model name, and temperature.
@@ -21,13 +20,11 @@ class LLM:
         model_name (str): The name of the model to be used. Defaults to MODEL_NAME.
         temperature (float): The temperature setting for the model, affecting randomness. Defaults to 0.
         """
-        # # Lấy api_num dựa trên counter
-        # api_num = (LLM._counter % len(LLM._api_keys)) + 1
-        # LLM._counter += 1
-        # print(f"Using API key number: {api_num} for model {model_name}")
-        # api_key = LLM._api_keys[api_num]
+        api_num = random.choice(list(LLM._api_keys.keys()))
+        print(f"Using API key number: {api_num} for model {model_name}")
+        api_key = LLM._api_keys[api_num]
         self.model = ChatOpenAI(
-            api_key=API_KEY,
+            api_key=api_key,
             openai_api_base=API_BASE,
             model=MODEL_NAME,
             temperature=temperature,

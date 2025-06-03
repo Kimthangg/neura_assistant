@@ -221,16 +221,22 @@ def parse_to_dict(s):
         except (ValueError, SyntaxError) as e:
             raise ValueError(f"Cannot parse string to dict: {e}")
         
-# from langchain_core.chat_history import InMemoryChatMessageHistory
-# def create_history_from_list(message_list):
-#     'Chuyển đổi danh sách tin nhắn thành lịch sử hội thoại'
-#     history = InMemoryChatMessageHistory()
-#     for msg in message_list:
-#         if msg["type"] == "user":
-#             history.add_user_message(msg["content"])
-#         elif msg["type"] == "assistant":
-#             history.add_ai_message(msg["content"])
-#     return history
+def to_utc_timestamp(date_str: str) -> int:
+    """
+    Chuyển đổi chuỗi ngày 'YYYY-MM-DD' trong múi giờ Asia/Ho_Chi_Minh
+    sang Unix timestamp UTC (giây).
+    """
+    # Định nghĩa múi giờ
+    local_tz = pytz.timezone('Asia/Ho_Chi_Minh')
+    
+    # Phân tích chuỗi ngày và đặt thời gian là 00:00:00
+    local_dt = local_tz.localize(datetime.strptime(date_str, "%Y-%m-%d"))
+    
+    # Chuyển đổi sang UTC
+    utc_dt = local_dt.astimezone(pytz.utc)
+    
+    # Trả về Unix timestamp
+    return int(utc_dt.timestamp())
 
 from langchain.schema import HumanMessage, AIMessage, BaseMessage
 def convert_list_to_messages(chat_history_raw) -> list[BaseMessage]:
