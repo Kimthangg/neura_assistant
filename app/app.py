@@ -8,7 +8,7 @@ from flask import Flask, jsonify, render_template, request, session
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "./..")))
 
 # Import required modules from your project
-from bot import agent_manager_executor_func
+from bot import agent_manager_executor_func, agent_gmail_executor_func, agent_calendar_executor_func
 from db.db_manager import MongoDBManager
 
 #Import hàm helper
@@ -99,6 +99,9 @@ def new_conversation():
     session["user_id"] = str(uuid.uuid4())
     session["conversation_name_set"] = False
     session.modified = True
+    
+    agent_gmail_executor_func("",True)
+    agent_calendar_executor_func("",True)
 
     return jsonify({"success": True, "message": "Đã bắt đầu hội thoại mới!"})
 
