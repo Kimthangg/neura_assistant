@@ -1,6 +1,6 @@
 import sys
 import os
-sys.path.append( os.path.abspath(os.path.join(os.path.dirname(__file__), "./..")))
+sys.path.append( os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
 from bot import agent_calendar_executor_func
 
