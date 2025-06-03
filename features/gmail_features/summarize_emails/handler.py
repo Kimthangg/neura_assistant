@@ -1,10 +1,9 @@
 from config.calendar import xac_thuc_gmail
 import base64
 from email import message_from_bytes
-from bs4 import BeautifulSoup
+from utils import to_utc_timestamp
 
 service = xac_thuc_gmail()
-
 def get_mail_in_range(query):
     """Lấy danh sách mail (không chứa 'Re:') trong khoảng thời gian (chỉ ở mục Primary)."""
     response = service.users().messages().list(userId='me', q=query).execute()
@@ -104,6 +103,7 @@ from utils import parse_to_dict
 def summarize_emails_api(args, limit=8):
     """Tổng hợp context mail trong khoảng thời gian đã cho."""
     args = parse_to_dict(args)
+    #Chuyển thời gian sang timezone UTC
     query = []
     query.append("-subject:Re")  # Loại bỏ các email đã trả lời
     query.append("category:primary")  # Chỉ lấy email trong mục Primary
@@ -114,14 +114,15 @@ def summarize_emails_api(args, limit=8):
     if args['keyword']:
         query.append(f"{args['keyword']}")
     if args['start_date']:
-        query.append(f"after:{args['start_date']}")
+        query.append(f"after:{to_utc_timestamp(args['start_date'])}")
     if args['end_date']:
-        query.append(f"before:{args['end_date']}")
+        query.append(f"before:{to_utc_timestamp(args['end_date'])}")
     #Tạo bộ lọc query
     query = " ".join(query)
+    print(f"[*] Truy vấn tìm kiếm: {query}")
     mails = get_mail_in_range(query)
     if limit:
         mails = mails[:limit]
-    # return chain_summarize.invoke({"mails": mails}).content
-    return summarize_mails(mails)
+    return len(mails)
+    # return summarize_mails(mails)
 
