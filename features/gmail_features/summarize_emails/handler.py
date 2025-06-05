@@ -123,6 +123,6 @@ def summarize_emails_api(args, limit=8):
     mails = get_mail_in_range(query)
     if limit:
         mails = mails[:limit]
-    return len(mails)
-    # return summarize_mails(mails)
+    # return len(mails)
+    return summarize_mails(mails)
 
