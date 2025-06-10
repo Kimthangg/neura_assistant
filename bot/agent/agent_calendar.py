@@ -124,7 +124,7 @@ def agent_calendar_executor_func(query,flag=False):
                 last_params = json.load(file)
                 print("Last parameters loaded:", last_params)
             # Gắn thông tin từ file vào query
-            query = f"Câu truy vấn của người dùng:{query}\n[Last parameters: {json.dumps(last_params, ensure_ascii=False)}]"
+            query = f"Câu truy vấn của người dùng đã xác nhận:{query}\n[Last parameters: {json.dumps(last_params, ensure_ascii=False)}]"
             # Xóa file sau khi đã sử dụng
             os.remove(last_parameters_path)
         except (json.JSONDecodeError, FileNotFoundError):

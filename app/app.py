@@ -66,12 +66,12 @@ def chat():
 
     # Load chat history from database instead of session
     chat_history = db_manager.load_chat_history(session["user_id"])
+    chat_history.append({"type": "user", "content": user_message})
     
     # Process message with LLM - Truyền chat_history từ database vào gen_llm
     response = agent_manager_executor_func(user_message, chat_history)
     
     # Update chat history in database
-    chat_history.append({"type": "user", "content": user_message})
     chat_history.append({"type": "assistant", "content": response})
 
     # Set conversation name if this is the first message
