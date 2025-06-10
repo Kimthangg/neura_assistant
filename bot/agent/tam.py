@@ -1,6 +1,6 @@
 from ..agent_intent import intent_model
 import os, json
-def handle_tam(query):
+def handle_tam(query, history_chat=None):
     """
     Xử lý truy vấn với agent tam (tạm thời) để trả về kết quả.
     
@@ -12,18 +12,23 @@ def handle_tam(query):
         str: Kết quả từ agent tam hoặc thông báo lỗi.
     """
     last_parameters_path = "last_parameter.json"
-
+    intent = None  
     if os.path.exists(last_parameters_path):
         try:
             with open(last_parameters_path, 'r', encoding='utf-8') as file:
                 last_params = json.load(file)
                 print("Last intent loaded:", last_params.get('intent'))
             # Gắn thông tin từ file vào query
-                intent = last_params.get('intent')
+                intent = {"intent":last_params.get('intent')}
+                if intent.get('intent') in ["create_normal_event", "update_event", "delete_event", "get_first_calendar", "get_freetime", "get_multi_calendar"]:
+                    intent['intent'] = 'calendar'
+                elif intent.get('intent') in ["summarize_emails"]:
+                    intent['intent'] = 'gmail'
         except (json.JSONDecodeError, FileNotFoundError):
             # Nếu có lỗi đọc file, tiếp tục với query gốc
-            intent = None
+            pass
     try:
+        print(intent)
         if not intent:
             # Thực hiện truy vấn với intent_model
             intent = intent_model(query)
@@ -34,8 +39,8 @@ def handle_tam(query):
         elif intent.get('intent') == 'gmail':
             from .agent_gmail import agent_gmail_executor_func
             return agent_gmail_executor_func(query)
-        # elif intent == 'normal_message':
-        #     from .agent_normal_message import agent_normal_message_executor_func
-        #     return agent_normal_message_executor_func(query, history_chat)
+        elif intent.get('intent') == 'normal_message':
+            from .agent_manager import agent_manager_executor_func
+            return agent_manager_executor_func(query, history_chat)
     except Exception as e:
         return f"Đã xảy ra lỗi khi xử lý truy vấn: {str(e)}"
