@@ -88,7 +88,7 @@ prompt_template = PromptTemplate(
     Question: {input}
     {agent_scratchpad}"""
 )
-from langchain.memory import ConversationBufferMemory
+from langchain.memory import ConversationBufferMemory, ConversationBufferWindowMemory
 
 
 from utils import convert_list_to_messages
@@ -104,9 +104,10 @@ def agent_manager_executor_func(query, history_chat=None):
         str: Kết quả từ agent_executor hoặc thông báo lỗi.
     """
     # print("Đang load lịch sử chat:", history_chat)
-    memory_manager = ConversationBufferMemory(
+    memory_manager = ConversationBufferWindowMemory(
     memory_key="chat_history",
     return_messages=True,
+    k=3,  # Số lượng tin nhắn trong lịch sử chat
     )
     if history_chat:
         # Convert lịch sử về messages

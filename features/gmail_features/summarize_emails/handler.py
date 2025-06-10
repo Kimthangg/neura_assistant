@@ -1,4 +1,4 @@
-from config.calendar import xac_thuc_gmail
+from config.auth_gg import xac_thuc_gmail
 import base64
 from email import message_from_bytes
 from utils import to_utc_timestamp

@@ -175,10 +175,10 @@ token.json
 
 # Project-specific sensitive files
 .flaskenv
-config/
+config/mongodb.py
 
 # Alternative: If you want to keep some config files but ignore sensitive ones
-# config/environment.py
+config/environment.py
 # config/secrets.py
 # config/local_settings.py
 

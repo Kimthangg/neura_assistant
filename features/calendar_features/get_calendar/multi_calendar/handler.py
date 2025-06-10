@@ -1,4 +1,4 @@
-from config.calendar import xac_thuc_calendar
+from config.auth_gg import xac_thuc_calendar
 from utils import *
 
 def get_multi_calendar_api(function_args, timeZone: str = "Asia/Ho_Chi_Minh") -> dict:

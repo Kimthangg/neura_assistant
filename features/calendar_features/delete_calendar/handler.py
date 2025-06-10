@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from config.calendar import xac_thuc_calendar
+from config.auth_gg import xac_thuc_calendar
 from utils import *
 
 service, calendar_id = xac_thuc_calendar()
