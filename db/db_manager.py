@@ -6,8 +6,14 @@ import datetime
 
 from pymongo import MongoClient
 
-from config.mongodb import COLLECTION_NAME, DB_NAME, MONGO_URI
-
+# from config.mongodb import COLLECTION_NAME, DB_NAME, MONGO_URI
+import os
+# Load environment variables from .env file
+from dotenv import load_dotenv
+load_dotenv()
+COLLECTION_NAME = os.getenv("COLLECTION_NAME")
+DB_NAME = os.getenv("DB_NAME")
+MONGO_URI = os.getenv("MONGO_URI")
 
 class MongoDBManager:
     """

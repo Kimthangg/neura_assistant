@@ -1,8 +1,21 @@
 from langchain.agents import AgentExecutor, create_react_agent
 from langchain_openai import ChatOpenAI
 
-from config.environment import API_KEY, API_BASE, MODEL_NAME, API_KEY_2, API_KEY_3, API_KEY_4
+# from config.environment import API_KEY, API_BASE, MODEL_NAME, API_KEY_2, API_KEY_3, API_KEY_4
 import random
+import os
+# Load environment variables from .env file
+from dotenv import load_dotenv
+load_dotenv()
+
+# Lấy các biến ra
+API_KEY = os.getenv("API_KEY")
+API_BASE = os.getenv("API_BASE")
+MODEL_NAME = os.getenv("MODEL_NAME")
+API_KEY_2 = os.getenv("API_KEY_2")
+API_KEY_3 = os.getenv("API_KEY_3")
+API_KEY_4 = os.getenv("API_KEY_4")
+
 class LLM:
     _api_keys = {
         1: API_KEY,
