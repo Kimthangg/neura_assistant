@@ -99,13 +99,16 @@ def llm_summarize(model_name: str = MODEL_NAME, temperature: float = 0.0, option
         openai_api_base=API_BASE,
         model=model_name,
         temperature=temperature,
+        max_tokens = 2000,  
     )
     prompt_template = """Bạn là một trợ lý ảo thông minh có khả năng tóm tắt nội dung email. Bạn sẽ nhận vào một danh sách các email và trả về nội dung tóm tắt của chúng kèm các thông tin về subject cũng như ngày gửi, người gửi.
     Nếu chúng có các thông tin ngày tháng, địa điểm(các nội dung có thể tạo lịch) thì đưa ra các thông tin đó cho người dùng biết
     Dưới đây là danh sách các email:
     {mails}
     Bạn cần tóm tắt nội dung của các email này và trả về một danh sách các câu tóm tắt để người dùng có thể hiểu nhanh nội dung của chúng. Mỗi câu tóm tắt nên ngắn gọn và súc tích, chỉ bao gồm các thông tin quan trọng nhất.
-    Nếu có các thông tin về ngày tháng, địa điểm trong nội dung email thì hãy đưa ra các thông tin đó cho người dùng biết."""
+    Nếu có các thông tin về ngày tháng, địa điểm trong nội dung email thì hãy đưa ra các thông tin đó cho người dùng biết
+    Trả về dưới dạng JSON(luôn luôn có trường id).
+    """
     prompt = PromptTemplate(
         input_variables=["mails"],
         template=prompt_template

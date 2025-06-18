@@ -2,7 +2,8 @@ from config.auth_gg import xac_thuc_gmail
 import base64
 from email import message_from_bytes
 from utils import to_utc_timestamp
-
+from db.db_manager import MongoDBManager
+db_manager = MongoDBManager()
 service = xac_thuc_gmail()
 def get_mail_in_range(query):
     """Lấy danh sách mail (không chứa 'Re:') trong khoảng thời gian (chỉ ở mục Primary)."""
@@ -57,7 +58,8 @@ def get_email_content(message_id):
 
 from concurrent.futures import ThreadPoolExecutor
 from services.llm.llm_config import llm_summarize
-
+import json
+import re
 def summarize_mails(mails):
     chain_summarize_1 = llm_summarize(option_api=2)
     chain_summarize_2 = llm_summarize(option_api=3)
@@ -71,9 +73,11 @@ def summarize_mails(mails):
 
     def invoke_chain(chain, emails):
         print('Đang tóm tắt emails...')
+        
         return chain.invoke({"mails": emails}).content
 
     summaries = []
+    list_mails = []
     with ThreadPoolExecutor() as executor:
         futures = []
 
@@ -94,9 +98,23 @@ def summarize_mails(mails):
 
         # Lấy kết quả từ futures theo thứ tự ban đầu
         for idx, future in enumerate(futures):
-            summaries.append(f"--- Bản tóm tắt {idx+1} ---\n{future.result()}\n\n")
-
-    summaries.append("Hãy gộp 3 bản tóm tắt này lại với nhau để tạo thành một bản tóm tắt hoàn chỉnh cho người dùng.")
+            summaries.append(f"--- Bản tóm tắt {idx+1} ---\n{future.result()}\n\n")            # Parse JSON từ kết quả
+            try:
+                json_match = re.search(r'```json\n(.*?)\n```', future.result(), re.DOTALL)
+                if json_match:
+                    json_data = json.loads(json_match.group(1).strip())
+                    if isinstance(json_data, list):
+                        list_mails.extend(json_data)
+                    else:
+                        list_mails.append(json_data)
+            except (json.JSONDecodeError, AttributeError):
+                pass
+    
+    # Lưu vào MongoDB ngay lập tức
+    if list_mails:
+        db_manager.save_summarized_emails(list_mails)
+        print(f"[*] Đã lưu {len(list_mails)} emails vào cơ sở dữ liệu MongoDB")
+    
     return "\n".join(summaries)
 
 from utils import parse_to_dict
@@ -120,9 +138,38 @@ def summarize_emails_api(args, limit=8):
     #Tạo bộ lọc query
     query = " ".join(query)
     print(f"[*] Truy vấn tìm kiếm: {query}")
+    
+    # Lấy danh sách mail từ API Gmail
     mails = get_mail_in_range(query)
     if limit:
         mails = mails[:limit]
-    # return len(mails)
-    return summarize_mails(mails)
+    
+    # Nếu không có mail nào, trả về thông báo
+    if not mails:
+        return "Không tìm thấy email nào khớp với tiêu chí tìm kiếm."
+    
+    summary_text = "Hãy gộp các bản tóm tắt này lại với nhau để tạo thành một bản tóm tắt hoàn chỉnh cho người dùng.\n"
+    # Kiểm tra xem những email nào đã tồn tại trong cơ sở dữ liệu
+    # Lấy danh sách ID của tất cả các email
+    email_ids = [mail['id'] for mail in mails]
+    
+    # Kiểm tra những ID nào đã tồn tại trong DB
+    summarized_email = db_manager.get_summarized_emails(email_ids)
+    
+    if summarized_email:
+        print(f"[*] Đã tìm thấy {len(summarized_email)}/{len(mails)} email đã tồn tại trong cơ sở dữ liệu")
+    #lấy ra id những email đã tồn tại trong cơ sở dữ liệu
+    existed_mails  = [email['id'] for email in summarized_email]
+    # Lọc ra những email chưa tồn tại trong DB để tóm tắt
+    new_mails = [mail for mail in mails if mail['id'] not in existed_mails]
+    
+    # Nếu tất cả email đều đã tồn tại, không cần tóm tắt, lấy trong db ra
+    if not new_mails:
+        summary_text += "\n".join(str(sumz_email) for sumz_email in summarized_email)
+    else:
+        print(f"[*] Cần tóm tắt {len(new_mails)}/{len(mails)} email mới")
+        summary_text += summarize_mails(new_mails)
+    db_manager.close()
+    print("[*] Đã tóm tắt xong email",summary_text)
+    return summary_text
 
