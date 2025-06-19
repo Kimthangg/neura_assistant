@@ -1,5 +1,4 @@
 from langchain.agents import Tool
-from langchain.memory import ConversationBufferMemory
 from langchain.prompts import PromptTemplate
 
 from .agent_calendar import agent_calendar_executor_func

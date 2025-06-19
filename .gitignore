@@ -234,3 +234,5 @@ test_*.txt
 *.joblib
 *.h5
 *.pb
+
+models--hiieu--halong_embedding

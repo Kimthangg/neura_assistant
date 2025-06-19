@@ -14,7 +14,7 @@ load_dotenv()
 COLLECTION_NAME = os.getenv("COLLECTION_NAME")
 DB_NAME = os.getenv("DB_NAME")
 MONGO_URI = os.getenv("MONGO_URI")
-
+from services.embedding_model.embedding import embedding_text
 class MongoDBManager:
     """
     Class to manage MongoDB operations for chat history
@@ -217,7 +217,13 @@ class MongoDBManager:
                 # Add timestamp for when this record was saved
                 email_doc = email.copy()  # Create a copy to avoid modifying the original
                 email_doc["saved_at"] = datetime.datetime.utcnow()
-                
+                # Create a text string from the email document for embedding
+                data_embed = ""
+                for key, value in email_doc.items():
+                    if key not in ["id", "saved_at"] and value:  # Skip id and saved_at fields
+                        data_embed += f"{key}: {value} "
+                # Generate embedding for the combined text
+                email_doc['embedding'] = embedding_text(data_embed)
                 # Insert or update (upsert) the document
                 result = email_collection.update_one(
                     {"id": email["id"]},
@@ -259,7 +265,7 @@ class MongoDBManager:
             emails = list(
                 email_collection.find(
                     {"id": {"$in": email_ids}},
-                    {"_id": 0}  # Exclude MongoDB ID
+                    {"_id": 0, "embedding": 0}  # Exclude MongoDB ID
                 )
             )
             

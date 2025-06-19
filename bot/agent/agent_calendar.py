@@ -1,5 +1,4 @@
 from langchain.agents import Tool
-from langchain.memory import ConversationBufferWindowMemory 
 from langchain.prompts import PromptTemplate
 
 

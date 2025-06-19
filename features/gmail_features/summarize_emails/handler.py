@@ -3,7 +3,7 @@ import base64
 from email import message_from_bytes
 from utils import to_utc_timestamp
 from db.db_manager import MongoDBManager
-db_manager = MongoDBManager()
+
 service = xac_thuc_gmail()
 def get_mail_in_range(query):
     """Lấy danh sách mail (không chứa 'Re:') trong khoảng thời gian (chỉ ở mục Primary)."""
@@ -73,7 +73,6 @@ def summarize_mails(mails):
 
     def invoke_chain(chain, emails):
         print('Đang tóm tắt emails...')
-        
         return chain.invoke({"mails": emails}).content
 
     summaries = []
@@ -112,6 +111,7 @@ def summarize_mails(mails):
     
     # Lưu vào MongoDB ngay lập tức
     if list_mails:
+        db_manager = MongoDBManager() 
         db_manager.save_summarized_emails(list_mails)
         print(f"[*] Đã lưu {len(list_mails)} emails vào cơ sở dữ liệu MongoDB")
     
@@ -152,7 +152,13 @@ def summarize_emails_api(args, limit=8):
     # Kiểm tra xem những email nào đã tồn tại trong cơ sở dữ liệu
     # Lấy danh sách ID của tất cả các email
     email_ids = [mail['id'] for mail in mails]
-    
+    # Khởi tạo một đối tượng DB mới
+    db_manager = None
+    try:
+        db_manager = MongoDBManager()
+    except Exception as e:
+        print(f"[!] Lỗi khi kết nối đến cơ sở dữ liệu: {e}")
+        return "Lỗi kết nối đến cơ sở dữ liệu. Vui lòng thử lại sau."
     # Kiểm tra những ID nào đã tồn tại trong DB
     summarized_email = db_manager.get_summarized_emails(email_ids)
     
@@ -169,7 +175,6 @@ def summarize_emails_api(args, limit=8):
     else:
         print(f"[*] Cần tóm tắt {len(new_mails)}/{len(mails)} email mới")
         summary_text += summarize_mails(new_mails)
-    db_manager.close()
     print("[*] Đã tóm tắt xong email",summary_text)
     return summary_text
 

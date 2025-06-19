@@ -10,5 +10,5 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "./.."))
 from features.gmail_features.summarize_emails import summarize_emails_api
 
 
-args = {'sender': '', 'subject': '', 'keyword': '', 'start_date': '2025-05-08', 'end_date': '2025-05-09', 'incorrect_datetime': False}
+args = {"start_date": "2025-05-08", "end_date": "2025-05-09", "keyword": "", "sender": "ftech", "subject": "", "incorrect_datetime": False}
 print(summarize_emails_api(args))
