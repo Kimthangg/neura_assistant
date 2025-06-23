@@ -3,6 +3,7 @@ from langchain.prompts import PromptTemplate
 
 from .agent_calendar import agent_calendar_executor_func
 from .agent_gmail import agent_gmail_executor_func
+from ..handler.retrieval_infomation import retrieval_info
 from services.llm.llm_config import create_react_agent_executor
 tools = []
 tools.append(
@@ -24,6 +25,17 @@ tools.append(
     
     - Tự động phân loại và gắn nhãn mail (công việc, cá nhân, quan trọng, gần đến hạn)
     - Trợ lý tìm kiếm email thông minh với nội dung cụ thể""",
+))
+tools.append(
+    Tool(
+    name="retrieve_information",
+    func=retrieval_info,
+    description="""Truy xuất thông tin từ cơ sở kiến thức trong hệ thống RAG. Công cụ này có khả năng:
+    - Tìm kiếm và truy xuất thông tin cá nhân của người dùng
+    - Cung cấp dữ liệu có liên quan từ các nguồn lưu trữ
+    - Hỗ trợ việc tạo câu trả lời dựa trên kiến thức đã lưu trữ
+    - Truy xuất ngữ cảnh bổ sung để làm phong phú các phản hồi
+    - Tìm kiếm thông tin theo từ khóa hoặc chủ đề cụ thể""",
 ))
 
 tool_names = [tool.name for tool in tools]
@@ -47,6 +59,7 @@ prompt_template = PromptTemplate(
     Quy trình xử lý:
     - Nếu liên quan đến lịch (tạo, xem, sửa, xóa sự kiện, tìm thời gian rảnh): sử dụng agent_calendar
     - Nếu liên quan đến email (tóm tắt, phân loại, tìm kiếm): sử dụng agent_gmail
+    - Nếu cần truy xuất thông tin từ cơ sở kiến thức: sử dụng retrieve_information
     - Nếu là câu hỏi chung không liên quan đến lịch hoặc email: hãy trả lời bằng ngôn ngữ của người dùng (tiếng Việt hoặc tiếng Anh) một cách tự nhiên và hữu ích
     - Nếu không rõ ý định, hãy hỏi lại người dùng để lấy thông tin chính xác hơn
     - Nếu có yêu cầu phức tạp liên quan đến cả hai: chia nhỏ và xử lý tuần tự

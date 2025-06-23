@@ -209,8 +209,9 @@ class MongoDBManager:
             success_count = 0
             
             for email in emails:
+                print(email)
                 # Ensure ID field exists
-                if "id" not in email:
+                if "id" not in email and "personal_data" not in email:
                     print(f"Thiếu trường ID bắt buộc trong email")
                     continue
                 
@@ -265,7 +266,7 @@ class MongoDBManager:
             emails = list(
                 email_collection.find(
                     {"id": {"$in": email_ids}},
-                    {"_id": 0, "embedding": 0}  # Exclude MongoDB ID
+                    {"_id": 0}  # Exclude MongoDB ID
                 )
             )
             
@@ -273,7 +274,66 @@ class MongoDBManager:
         except Exception as e:
             print(f"Lỗi khi lấy danh sách email tóm tắt: {e}")
             return []
-
+    def search_emails_by_vector(self, query_text, limit=5):
+        """
+        Search emails using vector similarity search
+        
+        Args:
+            query_text (str): The query text to search for
+            limit (int, optional): Maximum number of results to return. Defaults to 5.
+            
+        Returns:
+            list: List of matching email documents
+        """
+        if self.client is None:
+            print("MongoDB connection not available")
+            return []
+            
+        try:
+            # Generate embedding for the query text
+            query_vector = embedding_text(query_text)
+            
+            # Use MongoDB's vector search aggregation
+            email_collection = self.db["summarized_emails"]
+            
+            # Run the aggregation pipeline with vector search
+            results = email_collection.aggregate([
+                {
+                    "$vectorSearch": {
+                        "index": "vector_index",
+                        "path": "embedding",
+                        "queryVector": query_vector,
+                        "numCandidates": 100,
+                        "limit": limit,
+                        "similarity": "cosine"
+                    }
+                },
+                {
+                    "$project": {
+                        "score": { "$meta": "vectorSearchScore" },
+                        "embedding": 0
+                    }
+                },
+                {
+                    "$sort": {
+                        "score": -1 # Sort by similarity score in descending order
+                    }
+                }
+            ])
+            
+            # Convert results to a list
+            matching_emails = list(results)
+            
+            # Remove MongoDB _id field from results
+            for email in matching_emails:
+                if "_id" in email:
+                    del email["_id"]
+                    
+            return matching_emails
+            
+        except Exception as e:
+            print(f"Lỗi khi tìm kiếm email theo vector: {e}")
+            return []
     def close(self):
         """Close MongoDB connection"""
         if self.client is not None:

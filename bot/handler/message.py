@@ -2,7 +2,9 @@ import json
 from bot import *
 from services.llm.llm_config import *
 from features import *
-
+from db.db_manager import MongoDBManager
+# Initialize MongoDB manager
+db_manager = MongoDBManager()
 
 def full_flow(action_input):
     # Chuyển đổi action_input từ JSON string sang dict
@@ -31,7 +33,12 @@ def full_flow(action_input):
         extraction = LLM(system_prompt_delete_event, tool_delete_event, temperature=0.1)(user_message)
     # ============GMAIL================
     elif intent == "summarize_emails":
-        extraction = LLM(system_prompt_summarize_emails, tool_summarize_emails, temperature=0.1)(user_message)
+        data_retriver = db_manager.search_emails_by_vector(query_text=user_message, limit=3)
+        if data_retriver:
+            # Nếu có dữ liệu từ MongoDB, sử dụng dữ liệu đó
+            extraction = {"mails": data_retriver}
+        else:
+            extraction = LLM(system_prompt_summarize_emails, tool_summarize_emails, temperature=0.1)(user_message)
     print("intent", intent)
     print("extraction", extraction)
     # Add intent to extraction dictionary and return
