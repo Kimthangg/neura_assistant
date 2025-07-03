@@ -149,7 +149,7 @@ def create_react_agent_executor(
         model=model_name,
         temperature=temperature,
     )
-    print("\nLịch sử chat đã được nạp vào memory:", memory.chat_memory.messages)
+    # print("\nLịch sử chat đã được nạp vào memory:", memory.chat_memory.messages)
     
     # Tạo ReAct agent
     agent = create_react_agent(llm, tools, prompt_template)

@@ -21,9 +21,7 @@ tools.append(
     description="""Xử lý các câu truy vấn liên quan đến Gmail, bao gồm:
     - Tóm tắt email trong khoảng thời gian đã cho
     - Dựa vào bản tóm tắt có thể lấy được các thông tin về ngày tháng, địa điểm để tạo lịch dưới sự đồng ý của người dùng
-    - Cảnh báo các email có deadline gần đến hạn từ bản tóm tắt
-    
-    - Tự động phân loại và gắn nhãn mail (công việc, cá nhân, quan trọng, gần đến hạn)
+    - Cảnh báo các email có deadline gần đến hạn từ bản tóm tắt    
     - Trợ lý tìm kiếm email thông minh với nội dung cụ thể""",
 ))
 tools.append(
@@ -35,7 +33,8 @@ tools.append(
     - Cung cấp dữ liệu có liên quan từ các nguồn lưu trữ
     - Hỗ trợ việc tạo câu trả lời dựa trên kiến thức đã lưu trữ
     - Truy xuất ngữ cảnh bổ sung để làm phong phú các phản hồi
-    - Tìm kiếm thông tin theo từ khóa hoặc chủ đề cụ thể""",
+    - Tìm kiếm thông tin email theo từ khóa hoặc chủ đề cụ thể
+    - Chỉ sử dụng thông tin liên quan đến câu hỏi người dùng không đưa ra thêm thông tin""",
 ))
 
 tool_names = [tool.name for tool in tools]
@@ -59,7 +58,7 @@ prompt_template = PromptTemplate(
     Quy trình xử lý:
     - Nếu liên quan đến lịch (tạo, xem, sửa, xóa sự kiện, tìm thời gian rảnh): sử dụng agent_calendar
     - Nếu liên quan đến email (tóm tắt, phân loại, tìm kiếm): sử dụng agent_gmail
-    - Nếu cần truy xuất thông tin từ cơ sở kiến thức: sử dụng retrieve_information
+    - Nếu câu hỏi liên quan đến thông tin cá nhân hoặc thông tin về mail thì truy xuất thông tin từ cơ sở kiến thức: sử dụng retrieve_information
     - Nếu là câu hỏi chung không liên quan đến lịch hoặc email: hãy trả lời bằng ngôn ngữ của người dùng (tiếng Việt hoặc tiếng Anh) một cách tự nhiên và hữu ích
     - Nếu không rõ ý định, hãy hỏi lại người dùng để lấy thông tin chính xác hơn
     - Nếu có yêu cầu phức tạp liên quan đến cả hai: chia nhỏ và xử lý tuần tự

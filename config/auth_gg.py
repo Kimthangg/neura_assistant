@@ -46,7 +46,7 @@ def xac_thuc_google():
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRET_FILE, SCOPES)
-            creds = flow.run_console()  
+            creds = flow.run_local_server()  
         # Lưu token mới vào file
         with open(TOKEN_FILE, "w") as token:
             token.write(creds.to_json())

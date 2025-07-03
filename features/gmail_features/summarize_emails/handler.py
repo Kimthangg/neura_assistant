@@ -175,6 +175,6 @@ def summarize_emails_api(args, limit=8):
     else:
         print(f"[*] Cần tóm tắt {len(new_mails)}/{len(mails)} email mới")
         summary_text += summarize_mails(new_mails)
-    print("[*] Đã tóm tắt xong email",summary_text)
+    # print("[*] Đã tóm tắt xong email",summary_text)
     return summary_text
 
