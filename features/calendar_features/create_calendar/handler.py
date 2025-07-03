@@ -1,7 +1,7 @@
 from config.auth_gg import xac_thuc_calendar
 from utils import *
-
-
+from datetime import datetime
+now = datetime.now().replace(microsecond=0)
 def create_event_api(func_data, timeZone: str = "Asia/Ho_Chi_Minh"):
     """
     Tạo sự kiện mới trên Google Calendar thông qua API.
@@ -30,6 +30,10 @@ def create_event_api(func_data, timeZone: str = "Asia/Ho_Chi_Minh"):
     """"""
     event_data = parse_to_dict(func_data)
     print("event_data", event_data)
+    # Kiểm tra thời gian có ở trong quá khứ không, so với thời gian hiện tại
+    if datetime.strptime(event_data["datetime_ranges"][0]["start_datetime"], "%Y-%m-%d %H:%M:%S") < now:
+        return {"error": "Thời gian bắt đầu sự kiện không được ở trong quá khứ."}
+    
     # try:
     #     if event_data['datetime_ranges'][0]['start_datetime'] == event_data['datetime_ranges'][0]['end_datetime']:
     #         print("start_datetime == end_datetime")

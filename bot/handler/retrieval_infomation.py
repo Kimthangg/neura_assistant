@@ -12,7 +12,7 @@ def retrieval_info(user_query):
         nếu không tìm thấy dữ liệu phù hợp.
     """
 
-    data = db_manager.search_emails_by_vector(query_text=user_query, limit=3)
+    data = db_manager.search_emails_by_vector(query_text=user_query)
     if data:
         return data
     else:
