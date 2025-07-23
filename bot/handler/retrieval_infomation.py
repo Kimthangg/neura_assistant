@@ -1,4 +1,4 @@
-from db.db_manager import MongoDBManager
+from db import MongoDBManager
 db_manager = MongoDBManager()
 def retrieval_info(user_query):
     """

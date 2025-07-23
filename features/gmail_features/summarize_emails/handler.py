@@ -2,7 +2,7 @@ from config.auth_gg import xac_thuc_gmail
 import base64
 from email import message_from_bytes
 from utils import to_utc_timestamp
-from db.db_manager import MongoDBManager
+from db import MongoDBManager
 
 service = xac_thuc_gmail()
 def get_mail_in_range(query):

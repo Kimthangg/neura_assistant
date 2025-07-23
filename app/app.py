@@ -9,7 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "./.."))
 
 # Import required modules from your project
 from bot import agent_manager_executor_func, agent_gmail_executor_func, agent_calendar_executor_func
-from db.db_manager import MongoDBManager
+from db import MongoDBManager
 
 #Import hàm helper
 from utils import format_timezone, convert_chat_history_to_html
