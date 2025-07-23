@@ -1,13 +1,17 @@
+from sched import scheduler
 from langchain_core.tools import Tool
 from langchain_core.prompts import PromptTemplate
+
+from bot.handler.message import full_flow
 
 from .agent_calendar import agent_calendar_executor_func
 from .agent_gmail import agent_gmail_executor_func
 from ..handler.retrieval_infomation import retrieval_info
 from services.llm.llm_config import create_react_agent_executor
+from .schedule_task import schedule_task, cancel_scheduled_task, list_scheduled_tasks
 tools = []
 tools.append(
-Tool(
+    Tool(
     name="agent_calendar",
     func=agent_calendar_executor_func,
     description="""Xử lý các câu truy vấn liên quan đến lịch, bao gồm tạo, xem, cập nhật, xóa sự kiện lịch và 
@@ -36,8 +40,39 @@ tools.append(
     - Tìm kiếm thông tin email theo từ khóa hoặc chủ đề cụ thể
     - Chỉ sử dụng thông tin liên quan đến câu hỏi người dùng không đưa ra thêm thông tin""",
 ))
+# # ======Scheduler tools=====
+tools.append(
+    Tool(
+        name="schedule_task",
+        func=schedule_task,
+        description="Lên lịch thực hiện nhiệm vụ tự động vào một thời điểm cụ thể hàng ngày. Ví dụ: Tóm tắt email lúc 17:00"
+    )
+)
 
+tools.append(
+    Tool(
+        name="cancel_scheduled_task",
+        func=cancel_scheduled_task,
+        description="Hủy một nhiệm vụ đã lên lịch. Ví dụ: Hủy tóm tắt email lúc 17:00"
+    )
+)
+
+tools.append(
+    Tool(
+        name="list_scheduled_tasks",
+        func=list_scheduled_tasks,
+        description="Liệt kê tất cả các nhiệm vụ đã lên lịch bằng ngôn ngữ tự nhiên"
+    )
+)
+# add the extract_datetime tool
+extract_datetime_tool = Tool(
+    name="extract_datetime",
+    description=f"Extract date information from full_flow(input) and return JSON to call Google Calendar API. Valid intents: {[tool.name for tool in tools]}",
+    func=full_flow,
+)
+tools.append(extract_datetime_tool)
 tool_names = [tool.name for tool in tools]
+
 prompt_template = PromptTemplate(
     input_variables=["input", "agent_scratchpad", "chat_history", "tools"],
     template="""Bạn là một trợ lý AI thông minh tên Neura, có khả năng phân tích ý định của người dùng và điều phối các agent chuyên biệt.
@@ -62,7 +97,11 @@ prompt_template = PromptTemplate(
     - Nếu là câu hỏi chung không liên quan đến lịch hoặc email: hãy trả lời bằng ngôn ngữ của người dùng (tiếng Việt hoặc tiếng Anh) một cách tự nhiên và hữu ích
     - Nếu không rõ ý định, hãy hỏi lại người dùng để lấy thông tin chính xác hơn
     - Nếu có yêu cầu phức tạp liên quan đến cả hai: chia nhỏ và xử lý tuần tự
-
+    
+    - Nếu người dùng muốn lên lịch thực hiện một tác vụ tự động, sử dụng 'schedule_task'
+    - Nếu người dùng muốn hủy một lịch tự động, sử dụng 'cancel_scheduled_task'
+    - Nếu người dùng muốn xem danh sách các lịch tự động, sử dụng 'list_scheduled_tasks'
+    - Nếu câu hỏi mà bạn không xác định được sử dụng agent_calendar hay sử dụng 'schedule_task' thì hãy hỏi lại người dùng để lấy thông tin chính xác hơn.
     Hãy sử dụng định dạng sau để trả lời nếu sử dụng tool agent_calendar hoặc agent_gmail:
     Question: câu hỏi mà bạn phải trả lời
     Thought: phân tích ý định người dùng và xác định agent phù hợp
