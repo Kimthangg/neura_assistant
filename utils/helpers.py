@@ -238,6 +238,7 @@ def to_utc_timestamp(date_str: str) -> int:
     # Trả về Unix timestamp
     return int(utc_dt.timestamp())
 
+# ============ Fucntions helper for agent ============
 from langchain.schema import HumanMessage, AIMessage, BaseMessage
 def convert_list_to_messages(chat_history_raw) -> list[BaseMessage]:
     messages = []

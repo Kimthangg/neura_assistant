@@ -1,5 +1,5 @@
-from langchain.agents import Tool
-from langchain.prompts import PromptTemplate
+from langchain_core.tools import Tool
+from langchain_core.prompts import PromptTemplate
 
 
 from bot.handler import full_flow

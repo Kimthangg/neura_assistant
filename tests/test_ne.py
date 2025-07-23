@@ -36,7 +36,17 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "./.."))
 from features.gmail_features import system_prompt_summarize_emails,tool_summarize_emails, summarize_emails_api
 from services.llm.llm_config import LLM
 
-prompt = "Tóm tắt email từ 5/5 đến 9/5"
+# prompt = "Tóm tắt email từ 5/5 đến 9/5"
+prompt = "Tóm tắt email gần đây"
+
 result = LLM(system_prompt_summarize_emails, tool_summarize_emails, temperature=0.1)(prompt)
 print(result)
 # print(summarize_emails_api(result))
+
+# from features.calendar_features import system_prompt_update_event,tool_update_event, update_event_api
+# from services.llm.llm_config import LLM
+
+# prompt = "sửa lịch học tiếng anh ngày 7/7 từ 7h đến 10h sang học từ 8h đến 11h"
+# result = LLM(system_prompt_update_event, tool_update_event, temperature=0.1)(prompt)
+# print(result)
+# # print(summarize_emails_api(result))

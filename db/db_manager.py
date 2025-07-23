@@ -266,7 +266,8 @@ class MongoDBManager:
             emails = list(
                 email_collection.find(
                     {"id": {"$in": email_ids}},
-                    {"_id": 0}  # Exclude MongoDB ID
+                    {"_id": 0, # Exclude MongoDB ID
+                     "embedding": 0}  # Exclude embedding field
                 )
             )
             

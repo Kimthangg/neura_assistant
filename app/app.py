@@ -154,5 +154,5 @@ if __name__ == "__main__":
     app.run(
         # host='0.0.0.0',  # Cho phép truy cập từ bên ngoài nếu cần
         port=5000,  # Hoặc bất kỳ port nào Cậu muốn
-        debug=True,  # Bật debug mode, auto-reload khi thay code
+        # debug=True,  # Bật debug mode, auto-reload khi thay code
     )

@@ -77,7 +77,7 @@ class LLM:
 
         return {}
 
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts import PromptTemplate
 def llm_summarize(model_name: str = MODEL_NAME, temperature: float = 0.0, option_api: int = 4):
     """
     Tạo một chain xử lý để tóm tắt nội dung email sử dụng mô hình ngôn ngữ lớn.

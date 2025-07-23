@@ -1,5 +1,5 @@
-from langchain.agents import Tool
-from langchain.prompts import PromptTemplate
+from langchain_core.tools import Tool
+from langchain_core.prompts import PromptTemplate
 
 from .agent_calendar import agent_calendar_executor_func
 from .agent_gmail import agent_gmail_executor_func
@@ -57,7 +57,7 @@ prompt_template = PromptTemplate(
     
     Quy trình xử lý:
     - Nếu liên quan đến lịch (tạo, xem, sửa, xóa sự kiện, tìm thời gian rảnh): sử dụng agent_calendar
-    - Nếu liên quan đến email (tóm tắt, phân loại, tìm kiếm): sử dụng agent_gmail
+    - Nếu liên quan đến email (tóm tắt, tìm kiếm): sử dụng agent_gmail
     - Nếu câu hỏi liên quan đến thông tin cá nhân hoặc thông tin về mail thì truy xuất thông tin từ cơ sở kiến thức: sử dụng retrieve_information
     - Nếu là câu hỏi chung không liên quan đến lịch hoặc email: hãy trả lời bằng ngôn ngữ của người dùng (tiếng Việt hoặc tiếng Anh) một cách tự nhiên và hữu ích
     - Nếu không rõ ý định, hãy hỏi lại người dùng để lấy thông tin chính xác hơn
