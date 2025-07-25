@@ -6,10 +6,9 @@ import pytz
 from datetime import datetime
 
 from services.llm.llm_config import LLM
-# from ..gmail_features import summarize_emails_apiz
-from .agent_gmail import agent_gmail_executor_func
+# from .agent_gmail import agent_gmail_executor_func
 from db import MongoDBManager
-
+from .bot_telegram import run_telegram_bot
 # Initialize the scheduler
 scheduler = BackgroundScheduler()
 scheduler.add_jobstore(MemoryJobStore(), 'default')
@@ -35,7 +34,7 @@ def load_scheduled_jobs_from_db():
             
             # Define the function to execute based on task_type
             if task_type == 'summarize_emails':
-                job_func = lambda: agent_gmail_executor_func(task_name)
+                job_func = lambda: run_telegram_bot(task_name)
             else:
                 continue  # Skip unsupported task types
             
@@ -77,7 +76,7 @@ def schedule_task(user_message):
     
     # Define the function to execute based on task_type
     if task_type == 'summarize_emails':
-        job_func = lambda: agent_gmail_executor_func(task_name)
+        job_func = lambda: run_telegram_bot(task_name)
     else:
         return {"error": "Unsupported task type"}
     

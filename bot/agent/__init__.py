@@ -1,5 +1,3 @@
 from .agent_calendar import agent_calendar_executor_func
 from .agent_gmail import agent_gmail_executor_func
 from .agent_manager import agent_manager_executor_func
-
-from .tam import handle_tam

@@ -149,10 +149,16 @@ def get_conversations():
     conversations = format_timezone(conversations)
     return jsonify({"conversations": conversations})
 
-
+# def run_flask_app():
+#     app.run(
+#         # host='0.0.0.0',  # Cho phép truy cập từ bên ngoài nếu cần
+#         port=5000,  # Hoặc bất kỳ port nào bạn muốn
+#         # debug=True,  # Bật debug mode, auto-reload khi thay code
+#     )
 if __name__ == "__main__":
     app.run(
         # host='0.0.0.0',  # Cho phép truy cập từ bên ngoài nếu cần
         port=5000,  # Hoặc bất kỳ port nào Cậu muốn
         # debug=True,  # Bật debug mode, auto-reload khi thay code
+        threaded=True,  # Enable threading to handle multiple requests
     )
