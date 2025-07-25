@@ -8,7 +8,9 @@ from flask import Flask, jsonify, render_template, request, session
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "./..")))
 
 # Import required modules from your project
-from bot import agent_manager_executor_func, agent_gmail_executor_func, agent_calendar_executor_func
+from bot.agent.agent_manager import agent_manager_executor_func
+from bot.agent.agent_gmail import agent_gmail_executor_func
+from bot.agent.agent_calendar import agent_calendar_executor_func
 from db import MongoDBManager
 
 #Import hàm helper
@@ -149,12 +151,26 @@ def get_conversations():
     conversations = format_timezone(conversations)
     return jsonify({"conversations": conversations})
 
-# def run_flask_app():
-#     app.run(
-#         # host='0.0.0.0',  # Cho phép truy cập từ bên ngoài nếu cần
-#         port=5000,  # Hoặc bất kỳ port nào bạn muốn
-#         # debug=True,  # Bật debug mode, auto-reload khi thay code
-#     )
+# dự kiến dùng webhook để nhận tin nhắn từ Telegram
+# from telegram import Bot, Update
+# from telegram.ext import Dispatcher, CommandHandler, MessageHandler, filters
+# BOT_TOKEN = os.getenv('BOT_TOKEN')
+# bot = Bot(token=BOT_TOKEN)
+# dispatcher = Dispatcher(bot, None, workers=0)
+
+# @app.route("/telegram_webhook", methods=["POST"])
+# def telegram_webhook():
+#     update = Update.de_json(request.get_json(force=True), bot)
+#     dispatcher.process_update(update)
+#     return "ok"
+
+def run_flask_app():
+    app.run(
+        # host='0.0.0.0',  # Cho phép truy cập từ bên ngoài nếu cần
+        port=5000,  # Hoặc bất kỳ port nào bạn muốn
+        # debug=True,  # Bật debug mode, auto-reload khi thay code
+        threaded=True,  # Enable threading to handle multiple requests
+    )
 if __name__ == "__main__":
     app.run(
         # host='0.0.0.0',  # Cho phép truy cập từ bên ngoài nếu cần

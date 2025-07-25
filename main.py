@@ -10,12 +10,12 @@ import sys
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 # Import the run_both_applications function from the bot_telegram module
 from app.app import run_flask_app
-from bot.agent.bot_telegram import run_telegram_bot
+from bot.agent.bot_telegram import run_bot_polling
 
 # Hàm chính để chạy cả hai ứng dụng
 def run_both_applications():
     # Tạo thread cho Telegram bot
-    telegram_thread = threading.Thread(target=run_telegram_bot)
+    telegram_thread = threading.Thread(target=run_bot_polling)
     telegram_thread.daemon = True  # Đảm bảo thread sẽ kết thúc khi chương trình chính kết thúc
     
     # Tạo thread cho Flask app
