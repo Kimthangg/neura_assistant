@@ -106,6 +106,9 @@ memory_calendar = ConversationBufferWindowMemory(
     return_messages=True,
 )
 
+# Biến lưu trữ các tham số cuối cùng
+last_parameters = None
+
 def agent_calendar_executor_func(query,flag=False):
     """
     Hàm thực thi agent_executor với truy vấn đầu vào.
@@ -116,23 +119,17 @@ def agent_calendar_executor_func(query,flag=False):
     Returns:
         dict: Kết quả trả về từ agent_executor.
     """
-    last_parameters_path = "last_parameter.json"
-    if os.path.exists(last_parameters_path):
-        try:
-            with open(last_parameters_path, 'r', encoding='utf-8') as file:
-                last_params = json.load(file)
-                print("Last parameters loaded:", last_params)
-            # Gắn thông tin từ file vào query
-            query = f"Câu truy vấn của người dùng đã xác nhận:{query}\n[Last parameters: {json.dumps(last_params, ensure_ascii=False)}]"
-            # Xóa file sau khi đã sử dụng
-            os.remove(last_parameters_path)
-        except (json.JSONDecodeError, FileNotFoundError):
-            # Nếu có lỗi đọc file, tiếp tục với query gốc
-            os.remove(last_parameters_path)
+    global last_parameters
+    if last_parameters is not None:
+        print("Last parameters loaded:", last_parameters)
+        # Gắn thông tin từ biến vào query
+        query = f"Câu truy vấn của người dùng đã xác nhận:{query}\n[Last parameters: {json.dumps(last_parameters, ensure_ascii=False)}]"
+        # Reset biến sau khi đã sử dụng
+        last_parameters = None
     if flag:
         memory_calendar.clear()
     else:
-        print("\nAgent caledar đang xử lí")
+        print("\nAgent calendar đang xử lí")
         # Tạo agent_executor với memory đã cấu hình
         agent_executor = create_react_agent_executor(
             tools=tools,

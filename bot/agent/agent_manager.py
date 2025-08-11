@@ -64,13 +64,13 @@ tools.append(
         description="Liệt kê tất cả các nhiệm vụ đã lên lịch bằng ngôn ngữ tự nhiên"
     )
 )
-# add the extract_datetime tool
-extract_datetime_tool = Tool(
-    name="extract_datetime",
-    description=f"Extract date information from full_flow(input) and return JSON to call Google Calendar API. Valid intents: {[tool.name for tool in tools]}",
-    func=full_flow,
-)
-tools.append(extract_datetime_tool)
+# # add the extract_datetime tool
+# extract_datetime_tool = Tool(
+#     name="extract_datetime",
+#     description=f"Extract date information from full_flow(input) and return JSON to call Google Calendar API. Valid intents: {[tool.name for tool in tools]}",
+#     func=full_flow,
+# )
+# tools.append(extract_datetime_tool)
 tool_names = [tool.name for tool in tools]
 
 prompt_template = PromptTemplate(
