@@ -6,14 +6,6 @@ Neura là một trợ lý cá nhân AI đa năng giúp người dùng quản lý
 
 ![Neura System Diagram](neura_diagram.png)
 
-Hệ thống Neura được chia thành các phần chính sau:
-
-1. **Frontend**: Giao diện người dùng dạng chat trực quan (Web + Telegram)
-2. **Backend**: Xử lý logic nghiệp vụ, tương tác với API bên ngoài và xử lý ngôn ngữ tự nhiên
-3. **LLM Service**: Dịch vụ mô hình ngôn ngữ lớn (Gemini Pro)
-4. **External APIs**: Tích hợp với Google Calendar và Gmail
-5. **Database**: MongoDB để lưu trữ lịch sử chat, thông tin tác vụ
-
 ## Tính năng chính
 
 ### 1. Quản lý Lịch (Calendar)
@@ -37,7 +29,7 @@ Hệ thống Neura được chia thành các phần chính sau:
 - Lên lịch cho các tác vụ tự động
 - Quản lý và hủy các tác vụ đã lên lịch
 - Liệt kê các tác vụ đã lên lịch
-
+- Ví dụ: "Lên lịch tự động tóm tắt email vào 5h chiều hàng ngày"
 ### 4. Hỗ trợ đa nền tảng
 
 - Giao diện web
@@ -110,7 +102,7 @@ Hệ thống Neura được chia thành các phần chính sau:
 3. **Services**: Kết nối với các dịch vụ bên ngoài
    - Tương tác với Google Calendar API
    - Tương tác với Gmail API
-   - Tích hợp mô hình ngôn ngữ lớn (LLM) - Gemini Pro
+   - Tích hợp mô hình ngôn ngữ lớn (LLM) - Gemini flash 2.0
    - Embedding Model - Halong Embedding
 
 4. **Database**: Lưu trữ lịch sử hội thoại và thông tin người dùng
@@ -121,92 +113,12 @@ Hệ thống Neura được chia thành các phần chính sau:
 - **Backend**: Python, Flask
 - **Frontend**: HTML, CSS, JavaScript
 - **Database**: MongoDB
-- **LLM**: Gemini Pro
+- **LLM**: Gemini flash 2.0
 - **Embedding Model**: Halong Embedding
 - **APIs**: Google Calendar API, Gmail API
 - **Bot Platform**: Telegram Bot API
 - **Task Scheduling**: APScheduler
 - **Dependency Management**: pip, requirements.txt
-
-## Yêu cầu hệ thống
-
-- Python 3.10+
-- MongoDB
-
-## Cài đặt
-
-1. Clone repository:
-
-```bash
-git clone https://github.com/Kimthangg/neura_assistant.git
-cd neura_assistant
-```
-
-2. Cài đặt các gói phụ thuộc:
-
-```bash
-pip install -r requirements.txt
-```
-
-3. Thiết lập các biến môi trường (tạo file `.env`):
-
-```
-# MongoDB Configuration
-MONGO_URI=mongodb://localhost:27017/
-DB_NAME=neura
-COLLECTION_NAME=chat_history
-
-# Google API Credentials
-GOOGLE_CLIENT_ID=your_client_id
-GOOGLE_CLIENT_SECRET=your_client_secret
-
-# LLM Configuration
-API_KEY=your_api_key
-API_BASE=your_api_base
-MODEL_NAME=your_model_name
-
-# Telegram Bot
-BOT_TOKEN=your_bot_token
-```
-
-4. Xác thực với Google API:
-   - Đặt file `credentials.json` vào thư mục gốc
-   - Chạy script xác thực để tạo `token.json`
-
-## Chạy ứng dụng
-
-Chạy cả hai ứng dụng (Web và Telegram Bot):
-
-```bash
-python main.py
-```
-
-Hoặc chạy riêng ứng dụng web:
-
-```bash
-python -m app.app
-```
-
-Hoặc chạy riêng bot Telegram:
-
-```bash
-python -m bot.agent.bot_telegram
-```
-
-## Cách sử dụng
-
-### Web Interface
-1. Truy cập `http://localhost:5000` trong trình duyệt
-2. Bắt đầu chat với trợ lý Neura
-3. Gõ các câu lệnh tự nhiên như:
-   - "Tạo lịch họp với team vào ngày mai lúc 10h sáng"
-   - "Tóm tắt email trong 3 ngày qua"
-   - "Lên lịch nhắc nhở tôi họp hằng tuần vào thứ 2 lúc 9h"
-
-### Telegram Bot
-1. Tìm bot của bạn trên Telegram theo username đã đăng ký
-2. Bắt đầu chat với bot bằng cách gõ `/start`
-3. Gõ các câu lệnh tự nhiên tương tự như trên web interface
 
 ## Luồng hoạt động của hệ thống
 
@@ -238,14 +150,3 @@ python -m bot.agent.bot_telegram
    - Lưu lịch sử hội thoại vào MongoDB
    - Cập nhật danh sách hội thoại trong giao diện
 
-## Đóng góp
-
-Vui lòng đọc [CONTRIBUTING.md](CONTRIBUTING.md) để biết chi tiết về quy trình đóng góp code.
-
-## Giấy phép
-
-Dự án này được phân phối dưới giấy phép MIT. Xem file [LICENSE](LICENSE) để biết thêm chi tiết.
-
-## Tác giả
-
-- Kimthangg
