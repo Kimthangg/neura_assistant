@@ -1,107 +1,102 @@
 # Neura - Trợ lý cá nhân AI
 
-Neura là một trợ lý cá nhân AI đa năng giúp người dùng quản lý lịch, sự kiện và email thông qua giao diện chat trực quan. Ứng dụng sử dụng kỹ thuật xử lý ngôn ngữ tự nhiên (NLP) để hiểu yêu cầu của người dùng và thực hiện các thao tác với Google Calendar và Gmail.
+Neura là một trợ lý cá nhân AI đa năng giúp người dùng quản lý lịch, sự kiện, email và lên lịch cho các tác vụ tự động thông qua giao diện chat trực quan. Ứng dụng sử dụng kỹ thuật xử lý ngôn ngữ tự nhiên (NLP) và Mô hình ngôn ngữ lớn (LLM) để hiểu yêu cầu của người dùng và thực hiện các thao tác với Google Calendar và Gmail.
 
 ## Tổng quan hệ thống
 
-Hệ thống Neura được chia thành hai phần chính:
+![Neura System Diagram](neura_diagram.png)
 
-1. **Backend**: Xử lý logic nghiệp vụ, tương tác với API bên ngoài và xử lý ngôn ngữ tự nhiên
-2. **Frontend**: Giao diện người dùng dạng chat trực quan
+Hệ thống Neura được chia thành các phần chính sau:
 
-```ascii
-┌─────────────────────────────────────────────────────────────────────────┐
-│                            NEURA SYSTEM                                  │
-├───────────────┐                                 ┌─────────────────────┐  │
-│               │                                 │                     │  │
-│   Frontend    │                                 │    External APIs    │  │
-│   (Browser)   │                                 │                     │  │
-│     ┌─────────┴─────────┐                       │   ┌─────────────┐   │  │
-│     │                   │                       │   │   Google    │   │  │
-│     │  Web Interface    │                       │   │  Calendar   │   │  │
-│     │    (HTML/CSS/JS)  │                       │   │     API     │   │  │
-│     └─────────┬─────────┘                       │   └──────┬──────┘   │  │
-│               │                                 │          │          │  │
-│               │  HTTP Requests                  │   ┌─────────────┐   │  │
-│               │                                 │   │   Google    │   │  │
-├───────────────┼─────────────────────────────────┤   │   Gmail     │   │  │
-│               │                                 │   │     API     │   │  │
-│               ▼                                 │   └──────┬──────┘   │  │
-│     ┌───────────────────┐                       │          │          │  │
-│     │                   │                       │          │          │  │
-│     │   Flask Server    │◄──────────────────────┼──────────┘          │  │
-│     │   (app/app.py)    │                       │                     │  │
-│     │                   │                       │                     │  │
-│     └────────┬──────────┘                       │                     │  │
-│              │                                  │                     │  │
-│              │                                  │                     │  │
-│              ▼                                  │                     │  │
-│    ┌────────────────────┐                       │                     │  │
-│    │                    │                       │                     │  │
-│    │ Bot Module         │                       │                     │  │
-│    │ ┌────────────────┐ │         ┌─────────────────┐                │  │
-│    │ │ Agent Manager  │ │         │                 │                │  │
-│    │ │(Intent & Route)│ │         │  LLM Service   │                │  │
-│    │ └────────────────┘ │◄────────┤  (Gemini 2.0)  │                │  │
-│    │ ┌────────────────┐ │         │                 │                │  │
-│    │ │Agent Extraction│ │         └─────────────────┘                │  │
-│    │ │(Data Extraction)│ │                                           │  │
-│    │ └────────────────┘ │                                            │  │
-│    │ ┌────────────────┐ │                                            │  │
-│    │ │    Handler     │ │                                            │  │
-│    │ │(Message Flow)  │◄├────────────────────────────────────────────┘  │
-│    │ └────────────────┘ │                                               │
-│    └──────────┬─────────┘                                               │
-│               │                                                         │
-│               │                                                         │
-│               ▼                                                         │
-│     ┌───────────────────┐                                               │
-│     │                   │                                               │
-│     │     MongoDB       │                                               │
-│     │    Database       │                                               │
-│     │                   │                                               │
-│     └───────────────────┘                                               │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘
+1. **Frontend**: Giao diện người dùng dạng chat trực quan (Web + Telegram)
+2. **Backend**: Xử lý logic nghiệp vụ, tương tác với API bên ngoài và xử lý ngôn ngữ tự nhiên
+3. **LLM Service**: Dịch vụ mô hình ngôn ngữ lớn (Gemini Pro)
+4. **External APIs**: Tích hợp với Google Calendar và Gmail
+5. **Database**: MongoDB để lưu trữ lịch sử chat, thông tin tác vụ
+
+## Tính năng chính
+
+### 1. Quản lý Lịch (Calendar)
+
+- Tạo sự kiện mới
+- Xem lịch trong khoảng thời gian cụ thể
+- Cập nhật thông tin sự kiện
+- Xóa sự kiện
+- Tìm thời gian rảnh
+- Lấy thông tin nhiều lịch trong một khoảng thời gian
+
+### 2. Quản lý Email (Gmail)
+
+- Tóm tắt email trong khoảng thời gian cụ thể
+- Trích xuất thông tin từ email để tạo sự kiện lịch
+- Cảnh báo email có deadline gần đến hạn
+- Tìm kiếm email thông minh với nội dung cụ thể
+
+### 3. Lập lịch tự động
+
+- Lên lịch cho các tác vụ tự động
+- Quản lý và hủy các tác vụ đã lên lịch
+- Liệt kê các tác vụ đã lên lịch
+
+### 4. Hỗ trợ đa nền tảng
+
+- Giao diện web
+- Bot Telegram
+
+## Cấu trúc dự án
+
 ```
-
-## Backend
-
-Backend của Neura được xây dựng bằng Python với Flask framework và tích hợp các công nghệ sau:
-
-### Cấu trúc Backend
-
-```plaintext
-├── app.py                     # Điểm khởi đầu ứng dụng Flask 
-├── bot/                       # Các module xử lý logic chatbot
+├── app/                       # Ứng dụng Flask web
+│   ├── app.py                 # Điểm khởi đầu ứng dụng web
+│   ├── static/                # Tài nguyên tĩnh (CSS, JS, Images)
+│   └── templates/             # Templates HTML
+├── bot/                       # Module xử lý chatbot
 │   ├── agent/                 # Quản lý các agent
-│   │   ├── agent_calendar.py  # Xử lý các tác vụ calendar
-│   │   ├── agent_gmail.py     # Xử lý các tác vụ email
-│   │   └── agent_manager.py   # Quản lý, phân loại ý định và điều phối các agent
+│   │   ├── agent_calendar.py  # Xử lý tác vụ calendar
+│   │   ├── agent_gmail.py     # Xử lý tác vụ email
+│   │   ├── agent_manager.py   # Quản lý, phân loại ý định
+│   │   ├── bot_telegram.py    # Bot Telegram
+│   │   └── schedule_task.py   # Quản lý tác vụ lịch trình
+│   ├── agent_intent/          # Xử lý ý định người dùng
+│   │   ├── prompt.py          # Mẫu nhắc cho LLM
+│   │   └── tools.py           # Công cụ xử lý ý định
 │   └── handler/               # Xử lý luồng tin nhắn
+│       ├── message.py         # Xử lý tin nhắn
+│       └── retrieval_infomation.py # Truy xuất thông tin
 ├── config/                    # Cấu hình hệ thống
-│   ├── calendar.py            # Cấu hình Google Calendar API
+│   ├── auth_gg.py             # Xác thực Google API
 │   ├── environment.py         # Biến môi trường
 │   └── mongodb.py             # Cấu hình MongoDB
 ├── db/                        # Quản lý cơ sở dữ liệu
-│   └── db_manager.py          # Tương tác với MongoDB
+│   ├── base_manager.py        # Lớp quản lý cơ bản
+│   ├── chat_manager.py        # Quản lý lịch sử chat
+│   ├── db_manager.py          # Tương tác với MongoDB
+│   ├── email_manager.py       # Quản lý dữ liệu email
+│   └── schedule_manager.py    # Quản lý lịch trình
 ├── features/                  # Các tính năng chính của ứng dụng
 │   ├── calendar_features/     # Tính năng quản lý lịch
 │   │   ├── create_calendar/   # Tạo sự kiện
 │   │   ├── delete_calendar/   # Xóa sự kiện
 │   │   ├── get_calendar/      # Xem lịch
 │   │   └── update_calendar/   # Cập nhật sự kiện
-│   └── gmail_features/        # Tính năng quản lý email
-│       ├── search_emails/     # Tìm kiếm email
-│       └── summarize_emails/  # Tóm tắt email
+│   ├── gmail_features/        # Tính năng quản lý email
+│   │   └── summarize_emails/  # Tóm tắt email
+│   └── schedule_features/     # Tính năng lập lịch tự động
+│       ├── handler.py         # Xử lý tác vụ lịch trình
+│       ├── prompt.py          # Mẫu nhắc cho lịch trình
+│       └── tools.py           # Công cụ lập lịch
 ├── services/                  # Các dịch vụ bên ngoài
+│   ├── embedding_model/       # Mô hình embedding
+│   │   └── embedding.py       # Dịch văn bản thành vector
 │   └── llm/                   # Dịch vụ mô hình ngôn ngữ lớn
-└── utils/                     # Tiện ích và công cụ chung
-    ├── default_text.py        # Văn bản mặc định cho chatbot
-    └── helpers.py             # Hàm trợ giúp
+│       └── llm_config.py      # Cấu hình LLM
+├── utils/                     # Tiện ích và công cụ chung
+│   ├── default_text.py        # Văn bản mặc định cho chatbot
+│   └── helpers.py             # Hàm trợ giúp
+└── main.py                    # Điểm khởi đầu ứng dụng
 ```
 
-### Các thành phần chính
+## Các thành phần chính
 
 1. **Agent Management**: Hệ thống quản lý các agent chuyên biệt
    - Agent Manager: Phân tích ý định người dùng, điều phối và chọn agent phù hợp với yêu cầu
@@ -115,91 +110,103 @@ Backend của Neura được xây dựng bằng Python với Flask framework và
 3. **Services**: Kết nối với các dịch vụ bên ngoài
    - Tương tác với Google Calendar API
    - Tương tác với Gmail API
-   - Tích hợp mô hình ngôn ngữ lớn (LLM) - Gemini 2.0
+   - Tích hợp mô hình ngôn ngữ lớn (LLM) - Gemini Pro
+   - Embedding Model - Halong Embedding
 
 4. **Database**: Lưu trữ lịch sử hội thoại và thông tin người dùng
    - Sử dụng MongoDB để lưu trữ dữ liệu
 
-### Luồng xử lý Backend
+## Công nghệ sử dụng
 
-1. Nhận yêu cầu từ người dùng qua giao diện chat
-2. Chuyển yêu cầu trực tiếp đến agent_manager
-3. Agent Manager phân tích ý định và chọn agent phù hợp (agent_calendar hoặc agent_gmail)
-4. Trích xuất thông tin cần thiết
-5. Thực hiện hành động tương ứng với API (Calendar, Gmail)
-6. Tạo phản hồi cho người dùng
-7. Lưu hội thoại vào cơ sở dữ liệu
+- **Backend**: Python, Flask
+- **Frontend**: HTML, CSS, JavaScript
+- **Database**: MongoDB
+- **LLM**: Gemini Pro
+- **Embedding Model**: Halong Embedding
+- **APIs**: Google Calendar API, Gmail API
+- **Bot Platform**: Telegram Bot API
+- **Task Scheduling**: APScheduler
+- **Dependency Management**: pip, requirements.txt
 
-## Frontend
+## Yêu cầu hệ thống
 
-Frontend của Neura là một giao diện web được xây dựng bằng HTML, CSS và JavaScript, kết hợp với Flask template.
+- Python 3.10+
+- MongoDB
 
-### Cấu trúc Frontend
+## Cài đặt
 
-```plaintext
-├── static/
-│   ├── css/
-│   │   └── style.css         # Style cho giao diện
-│   ├── js/
-│   │   └── chat.js           # Logic xử lý chat phía client
-│   └── images/               # Hình ảnh và icons
-└── templates/
-    └── index.html            # Giao diện người dùng
+1. Clone repository:
+
+```bash
+git clone https://github.com/Kimthangg/neura_assistant.git
+cd neura_assistant
 ```
 
-### Các thành phần chính của Frontend
+2. Cài đặt các gói phụ thuộc:
 
-1. **Giao diện chat**:
-   - Hiển thị lịch sử tin nhắn giữa người dùng và trợ lý
-   - Hỗ trợ hiệu ứng đang nhập khi trợ lý đang xử lý
+```bash
+pip install -r requirements.txt
+```
 
-2. **Thanh bên Conversation**:
-   - Hiển thị các cuộc hội thoại đã lưu
-   - Cho phép tạo hội thoại mới
-   - Cho phép xóa hội thoại
+3. Thiết lập các biến môi trường (tạo file `.env`):
 
-3. **Xử lý tương tác**:
-   - Gửi yêu cầu người dùng đến server
-   - Hiển thị phản hồi từ trợ lý
-   - Nút thực hiện hành động (khi cần xác nhận)
+```
+# MongoDB Configuration
+MONGO_URI=mongodb://localhost:27017/
+DB_NAME=neura
+COLLECTION_NAME=chat_history
 
-### Tính năng chính của Frontend
+# Google API Credentials
+GOOGLE_CLIENT_ID=your_client_id
+GOOGLE_CLIENT_SECRET=your_client_secret
 
-1. **Chat liền mạch**: Giao diện chat thân thiện, hỗ trợ hiệu ứng gõ văn bản
-2. **Quản lý hội thoại**: Lưu, tải và xóa các cuộc hội thoại
-3. **Xác nhận hành động**: Nút thực hiện cho phép người dùng xác nhận trước khi thực hiện các tác vụ
-4. **Định dạng tin nhắn**: Hỗ trợ hiển thị JSON và định dạng đặc biệt trong tin nhắn
+# LLM Configuration
+API_KEY=your_api_key
+API_BASE=your_api_base
+MODEL_NAME=your_model_name
 
-## Tính năng chính của Neura
+# Telegram Bot
+BOT_TOKEN=your_bot_token
+```
 
-### Quản lý lịch (Calendar)
+4. Xác thực với Google API:
+   - Đặt file `credentials.json` vào thư mục gốc
+   - Chạy script xác thực để tạo `token.json`
 
-1. **Tạo sự kiện**: Tạo các sự kiện mới trong lịch
-   - Sự kiện thông thường hoặc cuộc họp
-   - Hỗ trợ sự kiện lặp lại (hàng ngày, hàng tuần, hàng tháng)
-   - Đặt thời gian bắt đầu, kết thúc, địa điểm và người tham gia
+## Chạy ứng dụng
 
-2. **Xóa sự kiện**: Xóa các sự kiện đã tạo
-   - Xóa theo tên sự kiện
-   - Xóa theo khoảng thời gian
+Chạy cả hai ứng dụng (Web và Telegram Bot):
 
-3. **Cập nhật sự kiện**: Chỉnh sửa thông tin sự kiện
-   - Thay đổi thời gian, địa điểm, người tham gia
-   - Chỉnh sửa tiêu đề hoặc mô tả
+```bash
+python main.py
+```
 
-4. **Xem lịch**: Truy vấn thông tin lịch
-   - Xem sự kiện trong ngày/tuần/tháng
-   - Tìm thời gian rảnh
+Hoặc chạy riêng ứng dụng web:
 
-### Quản lý email (Gmail)
+```bash
+python -m app.app
+```
 
-1. **Tìm kiếm email**: Tìm kiếm email trong hộp thư
-   - Tìm theo người gửi, chủ đề, nội dung
-   - Tìm theo khoảng thời gian
+Hoặc chạy riêng bot Telegram:
 
-2. **Tóm tắt email**: Tóm tắt nội dung email
-   - Tạo tóm tắt ngắn gọn các email quan trọng
-   - Trích xuất thông tin chính từ email dài
+```bash
+python -m bot.agent.bot_telegram
+```
+
+## Cách sử dụng
+
+### Web Interface
+1. Truy cập `http://localhost:5000` trong trình duyệt
+2. Bắt đầu chat với trợ lý Neura
+3. Gõ các câu lệnh tự nhiên như:
+   - "Tạo lịch họp với team vào ngày mai lúc 10h sáng"
+   - "Tóm tắt email trong 3 ngày qua"
+   - "Lên lịch nhắc nhở tôi họp hằng tuần vào thứ 2 lúc 9h"
+
+### Telegram Bot
+1. Tìm bot của bạn trên Telegram theo username đã đăng ký
+2. Bắt đầu chat với bot bằng cách gõ `/start`
+3. Gõ các câu lệnh tự nhiên tương tự như trên web interface
 
 ## Luồng hoạt động của hệ thống
 
@@ -231,31 +238,14 @@ Frontend của Neura là một giao diện web được xây dựng bằng HTML,
    - Lưu lịch sử hội thoại vào MongoDB
    - Cập nhật danh sách hội thoại trong giao diện
 
-## Cài đặt và triển khai
+## Đóng góp
 
-### Yêu cầu hệ thống
+Vui lòng đọc [CONTRIBUTING.md](CONTRIBUTING.md) để biết chi tiết về quy trình đóng góp code.
 
-- Python 3.10 hoặc cao hơn
-- MongoDB
-- Google API credentials (Calendar và Gmail)
+## Giấy phép
 
-### Cài đặt
+Dự án này được phân phối dưới giấy phép MIT. Xem file [LICENSE](LICENSE) để biết thêm chi tiết.
 
-1. Clone repository
-2. Cài đặt các thư viện phụ thuộc:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Cấu hình Google API credentials:
-   - Đặt file `credentials.json` vào thư mục gốc
-   - Cấu hình scope cho cả Calendar và Gmail API
-4. Khởi động ứng dụng:
-   ```bash
-   python app.py
-   ```
+## Tác giả
 
-## Kết luận
-
-Neura là một trợ lý cá nhân AI đa năng, không chỉ giúp quản lý lịch trình mà còn hỗ trợ xử lý email một cách thông minh. Hệ thống được thiết kế với kiến trúc module hóa rõ ràng, dễ dàng mở rộng thêm các tính năng mới trong tương lai.
-
-Với khả năng xử lý ngôn ngữ tự nhiên từ Gemini 2.0, Neura hiểu yêu cầu của người dùng và thực hiện các thao tác phức tạp một cách đơn giản, mang lại trải nghiệm tương tác tự nhiên và hiệu quả, như đang trò chuyện với một trợ lý cá nhân thực sự.
+- Kimthangg
