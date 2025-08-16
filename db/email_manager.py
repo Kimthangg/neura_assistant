@@ -66,8 +66,10 @@ class EmailMongoDBManager(BaseMongoDBManager):
                 
                 if result.upserted_id or result.modified_count > 0:
                     success_count += 1
-            
-            print(f"Đã lưu {success_count}/{len(emails)} email tóm tắt vào cơ sở dữ liệu")
+            if "personal_data" not in email:
+                print(f"Đã lưu data người dùng vào cơ sở dữ liệu")
+            else:
+                print(f"Đã lưu {success_count}/{len(emails)} email tóm tắt vào cơ sở dữ liệu")
             return success_count > 0
             
         except Exception as e:

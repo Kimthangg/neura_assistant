@@ -6,7 +6,7 @@ from bot.handler.message import full_flow
 
 from .agent_calendar import agent_calendar_executor_func
 from .agent_gmail import agent_gmail_executor_func
-from ..handler.retrieval_infomation import retrieval_info
+from ..handler.retrieval_infomation import retrieval_info, save_information
 from services.llm.llm_config import create_react_agent_executor
 from .schedule_task import schedule_task, cancel_scheduled_task, list_scheduled_tasks
 tools = []
@@ -39,6 +39,17 @@ tools.append(
     - Truy xuất ngữ cảnh bổ sung để làm phong phú các phản hồi
     - Tìm kiếm thông tin email theo từ khóa hoặc chủ đề cụ thể
     - Chỉ sử dụng thông tin liên quan đến câu hỏi người dùng không đưa ra thêm thông tin""",
+))
+tools.append(
+    Tool(
+    name="save_information",
+    func=save_information,
+    description="""Lưu trữ thông tin vào cơ sở dữ liệu. Công cụ này có khả năng:
+    - Lưu thông tin cá nhân của người dùng vào database
+    - Lưu trữ bất kỳ thông tin nào mà người dùng yêu cầu
+    - Xác nhận việc lưu trữ thông tin thành công
+    - Hỗ trợ lưu trữ nhiều loại thông tin như: thông tin liên hệ, ghi chú, sở thích, địa điểm thường đến
+    - Lưu trữ an toàn các thông tin cá nhân quan trọng của người dùng""",
 ))
 # # ======Scheduler tools=====
 tools.append(
@@ -138,7 +149,7 @@ prompt_template = PromptTemplate(
     Question: {input}
     {agent_scratchpad}"""
 )
-from langchain.memory import ConversationBufferMemory, ConversationBufferWindowMemory
+from langchain.memory import ConversationBufferWindowMemory
 
 
 from utils import convert_list_to_messages
@@ -157,7 +168,7 @@ def agent_manager_executor_func(query, history_chat=None):
     memory_manager = ConversationBufferWindowMemory(
     memory_key="chat_history",
     return_messages=True,
-    k=3,  # Số lượng tin nhắn trong lịch sử chat
+    k=5,  # Số lượng tin nhắn trong lịch sử chat
     )
     if history_chat:
         # Convert lịch sử về messages
