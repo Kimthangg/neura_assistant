@@ -50,16 +50,10 @@ tool_scheduler = {
             "type": "string",
             "description": "Name of the task"
         },
-        "action": {
-            "type": "string",
-            "enum": ["schedule", "cancel", "list"],
-            "description": "Action to perform (schedule, cancel or list)"
-        },
         },
         "required": [
             "task_name",
             "time",
-            "action"
         ]
     }
     }

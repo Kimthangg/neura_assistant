@@ -23,14 +23,13 @@ async def handle_message(update, context):
     # Gửi phản hồi lại người dùng dựa trên id chat
     chat_id = update.effective_chat.id
     print(f"{chat_id}: {text}")
-    db_manager.save_chat_history(chat_id="conversition_telegram", chat_history=text, conversation_name="Telegram Conversation")
     # lấy lịch sử chat từ MongoDB
-    history = db_manager.load_chat_history("conversition_telegram")
-    # Limit history to only keep the last 5 messages
-    if len(history) > 5:
-        history = history[-5:]
+    history = db_manager.load_chat_history("conversation_telegram")
+    history.append({"type": "user", "content": text})
     # Gọi hàm xử lý từ agent_manager_executor_func
     response = agent_manager_executor_func(text, history)
+    history.append({"type": "user", "content": response})
+    db_manager.save_chat_history(chat_id="conversation_telegram", chat_history=history, conversation_name="Telegram Conversation")
     # nếu quá 4096 kí tự thì chia nhỏ ra
     for chunk in split_text(response):
         await context.bot.send_message(
@@ -41,9 +40,12 @@ async def handle_message(update, context):
 chat_id = os.getenv('USER_ID_TELEGRAM')
 async def reponse_task_schedule(task_name):
     # Import here to avoid circular imports
-    from .agent_gmail import agent_gmail_executor_func
+    # from .agent_gmail import agent_gmail_executor_func
+    from .agent_manager import agent_manager_executor_func
+    # summary_task = agent_gmail_executor_func(task_name)
+    summary_task = agent_manager_executor_func(task_name)
     
-    summary_task = agent_gmail_executor_func(task_name)
+    
     # Gửi HTML qua Telegram
     for chunk in split_text(summary_task):
         await bot_summary_email.send_message(

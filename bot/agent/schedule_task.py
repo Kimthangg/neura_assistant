@@ -1,121 +1,77 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.jobstores.memory import MemoryJobStore
+from apscheduler.jobstores.mongodb import MongoDBJobStore
 from apscheduler.triggers.cron import CronTrigger
-import json
-import pytz
-from datetime import datetime
 
 from services.llm.llm_config import LLM
-# from .agent_gmail import agent_gmail_executor_func
-from db import MongoDBManager
-# Remove circular import
-# from .bot_telegram import run_telegram_bot
+
 # Initialize the scheduler
-scheduler = BackgroundScheduler()
-scheduler.add_jobstore(MemoryJobStore(), 'default')
+import os
+# Load environment variables from .env file
+from dotenv import load_dotenv
+load_dotenv()
+MONGO_URI = os.getenv("MONGO_URI")
+DB_NAME = os.getenv("DB_NAME")
+# ================== INIT ==================
+jobstores = {
+    'default': MongoDBJobStore(
+        database=DB_NAME,
+        collection='scheduled_jobs',
+        host=MONGO_URI
+    )
+}
+scheduler = BackgroundScheduler(jobstores=jobstores, timezone="Asia/Ho_Chi_Minh")
 scheduler.start()
+
 from features.schedule_features.tools import tool_scheduler, system_prompt_scheduler
-
-# Initialize MongoDB Manager
-db_manager = MongoDBManager()
-
-# Function to load scheduled jobs from database
-def load_scheduled_jobs_from_db():
-    try:
-        # Get all scheduled jobs from the database
-        jobs = db_manager.get_scheduled_jobs()
-        
-        # Restore each job to the scheduler
-        for job in jobs:
-            job_id = job['job_id']
-            task_type = job['task_type']
-            task_name = job['task_name']
-            hour = int(job['hour'])
-            minute = int(job['minute'])
-            
-            # Define the function to execute based on task_type
-            if task_type == 'summarize_emails':
-                # Use a wrapper function that imports run_telegram_bot when needed
-                def job_func_wrapper(task_name=task_name):
-                    from .bot_telegram import reponse_task_schedule
-                    import asyncio
-                    # Run the async function in the event loop
-                    asyncio.run(reponse_task_schedule(task_name))
-                job_func = job_func_wrapper
-            else:
-                continue  # Skip unsupported task types
-            
-            # Schedule the job
-            scheduler_job = scheduler.add_job(
-                job_func,
-                trigger=CronTrigger(hour=hour, minute=minute),
-                id=job_id,
-                replace_existing=True
-            )
-            
-        print(f"Loaded {len(jobs)} scheduled jobs from database")
-    except Exception as e:
-        print(f"Error loading scheduled jobs from database: {e}")
-
-# Load scheduled jobs when module is imported
-load_scheduled_jobs_from_db()
-
+import json
+# Use a wrapper function that imports run_telegram_bot when needed
+def job_func_wrapper(task_name):
+    from .bot_telegram import reponse_task_schedule
+    import asyncio
+    # Run the async function in the event loop
+    asyncio.run(reponse_task_schedule(task_name))
+def extract_time(time):
+    print('Đang extract time.......................')
+    time = json.loads(json.dumps(time))  
+    hour = time.get('hour')
+    minute = time.get('minute')
+    day_of_week = time.get('day_of_week')
+    month = time.get('month')
+    day = time.get('day')
+    # Nếu tất cả đều None
+    if all(v is None for v in [day, month, hour, minute, day_of_week]):
+        return "Không có thông tin thời gian nào được cung cấp, vui lòng cung cấp thời gian!"
+    return day, month, hour, minute, day_of_week
 # Add scheduler-related tools
 def schedule_task(user_message):
     """Schedule a recurring task at a specified time"""
     args = LLM(system_prompt_scheduler, tool_scheduler, temperature=0.1)(user_message)
     print(f"Received args: {args}")
     task_name = args.get('task_name')
-    time_str = args.get('time')
-    task_type = args.get('task_type')
+    time_json = args.get('time')
     
-    # Parse time (expecting format like "17:00")
-    hour, minute = map(int, time_str.split(':'))
+    day, month, hour, minute, day_of_week = extract_time(time_json)
     
     # Create a job ID
-    job_id = f"{task_type}_{task_name}_{hour:02d}_{minute:02d}"
-    
-    # Check if job exists in database and remove if it does
-    existing_job = db_manager.get_scheduled_job(job_id)
-    if existing_job:
+    job_id = f"{task_name}_{day or '*'}_{month or '*'}_{hour or '*'}_{minute or '*'}_{day_of_week or '*'}"
+
+    # Xóa job cũ nếu tồn tại
+    if scheduler.get_job(job_id):
         scheduler.remove_job(job_id)
-        db_manager.delete_scheduled_job(job_id)
-    
-    # Define the function to execute based on task_type
-    if task_type == 'summarize_emails':
-        # Use a wrapper function that imports run_telegram_bot when needed
-        def job_func_wrapper(task_name=task_name):
-            from .bot_telegram import reponse_task_schedule
-            import asyncio
-            # Run the async function in the event loop
-            asyncio.run(reponse_task_schedule(task_name))
-        job_func = job_func_wrapper
-    else:
-        return {"error": "Unsupported task type"}
     
     # Schedule the job
-    job = scheduler.add_job(
-        job_func,
-        trigger=CronTrigger(hour=hour, minute=minute),
+    scheduler.add_job(
+        job_func_wrapper,
+        trigger=CronTrigger(day=day, month=month, day_of_week=day_of_week, hour=hour, minute=minute),
         id=job_id,
+        args=[task_name],
+        # kwargs={**time_json},
         replace_existing=True
     )
     
-    # Save job to database
-    job_data = {
-        'job_id': job_id,
-        'task_type': task_type,
-        'task_name': task_name,
-        'hour': hour,
-        'minute': minute,
-        'created_at': datetime.utcnow(),
-        'updated_at': datetime.utcnow()
-    }
-    db_manager.save_scheduled_job(job_data)
-    
     return {
         "success": True,
-        "message": f"Đã lên lịch {task_name} vào lúc {hour:02d}:{minute:02d} hàng ngày",
+        "message": f"Đã lên lịch {task_name}",
         "job_id": job_id
     }
 
@@ -125,65 +81,32 @@ def cancel_scheduled_task(user_message):
     print(f"Received args cancel: {args}")
 
     task_name = args.get('task_name')
-    task_type = args.get('task_type')
-    time_str = args.get('time')
+    time_json = args.get('time')
     
-    # Parse time if provided
-    if time_str:
-        hour, minute = map(int, time_str.split(':'))
-        job_id = f"{task_type}_{task_name}_{hour:02d}_{minute:02d}"
-        
-        # Check if job exists
-        if db_manager.get_scheduled_job(job_id):
-            scheduler.remove_job(job_id)
-            db_manager.delete_scheduled_job(job_id)
-            return {
-                "success": True,
-                "message": f"Đã hủy lịch {task_name}"
-            }
-    else:
-        # Find all jobs matching the task_name and task_type
-        matching_jobs = db_manager.find_scheduled_jobs_by_task(task_type, task_name)
-        
-        if not matching_jobs:
-            return {"error": f"Không tìm thấy lịch {task_name} nào"}
-        
-        job_data = matching_jobs[0]  # Cancel the first matching job
-        job_id = job_data['job_id']
-        
-        # Remove job from scheduler and database
-        scheduler.remove_job(job_id)
-        db_manager.delete_scheduled_job(job_id)
-        return {
-            "success": True,
-            "message": f"Đã hủy lịch {task_name}"
-        }
-    
-    return {"error": f"Không tìm thấy lịch với ID {job_id}"}
+    day, month, hour, minute, day_of_week = extract_time(time_json)
 
-def list_scheduled_tasks(args=None):
-    """List all scheduled tasks"""
-    jobs = db_manager.get_scheduled_jobs()
-    
+    job_id = f"{task_name}_{day or '*'}_{month or '*'}_{hour or '*'}_{minute or '*'}_{day_of_week or '*'}"
+    if not job_id:
+        return {"error": f"Không tìm thấy lịch {task_name}"}
+    scheduler.remove_job(job_id)
+
+    return {"success": True, "message": f"Đã hủy lịch {task_name}"}
+
+def list_scheduled_tasks(_=None):
+    jobs = scheduler.get_jobs()
     if not jobs:
         return {"message": "Không có lịch nào được thiết lập"}
-    
+
     jobs_info = []
-    for job_data in jobs:
-        job_id = job_data['job_id']
-        scheduler_job = scheduler.get_job(job_id)
-        
-        if scheduler_job:
-            next_run = scheduler_job.next_run_time.astimezone(pytz.timezone('Asia/Ho_Chi_Minh'))
-            next_run_str = next_run.strftime("%Y-%m-%d %H:%M:%S")
-        else:
-            next_run_str = "Không xác định"
-        
+    for job in jobs:
+        next_run_str = (
+            job.next_run_time.strftime("%Y-%m-%d %H:%M:%S")
+            if job.next_run_time else "Không xác định"
+        )
         jobs_info.append({
-            "task_type": job_data['task_type'],
-            "task_name": job_data['task_name'],
-            "time": f"{job_data['hour']:02d}:{job_data['minute']:02d}",
+            "job_id": job.id,
+            "task_name": job.name,
+            "time": f"{job.trigger}",
             "next_run": next_run_str
         })
-    
     return {"scheduled_tasks": jobs_info}
