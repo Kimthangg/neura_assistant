@@ -1,8 +1,6 @@
-from sched import scheduler
 from langchain_core.tools import Tool
 from langchain_core.prompts import PromptTemplate
 
-from bot.handler.message import full_flow
 
 from .agent_calendar import agent_calendar_executor_func
 from .agent_gmail import agent_gmail_executor_func
@@ -75,13 +73,7 @@ tools.append(
         description="Liệt kê tất cả các nhiệm vụ đã lên lịch bằng ngôn ngữ tự nhiên"
     )
 )
-# # add the extract_datetime tool
-# extract_datetime_tool = Tool(
-#     name="extract_datetime",
-#     description=f"Extract date information from full_flow(input) and return JSON to call Google Calendar API. Valid intents: {[tool.name for tool in tools]}",
-#     func=full_flow,
-# )
-# tools.append(extract_datetime_tool)
+
 tool_names = [tool.name for tool in tools]
 
 prompt_template = PromptTemplate(
@@ -113,6 +105,7 @@ prompt_template = PromptTemplate(
     - Nếu người dùng muốn hủy một lịch tự động, sử dụng 'cancel_scheduled_task'
     - Nếu người dùng muốn xem danh sách các lịch tự động, sử dụng 'list_scheduled_tasks'
     - Nếu câu hỏi mà bạn không xác định được sử dụng agent_calendar hay sử dụng 'schedule_task' thì hãy hỏi lại người dùng để lấy thông tin chính xác hơn.
+    - Nếu người dùng muốn lưu thông tin thì sử dụng 'save_information'
     Hãy sử dụng định dạng sau để trả lời nếu sử dụng tool agent_calendar hoặc agent_gmail:
     Question: câu hỏi mà bạn phải trả lời
     Thought: phân tích ý định người dùng và xác định agent phù hợp
