@@ -1,1 +1,0 @@
-from .tools import intent_model

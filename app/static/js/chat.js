@@ -164,33 +164,55 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             // Sử dụng hàm API từ api.js
             const data = await createNewConversationAPI();
-              if (data.success) {
+              
+            if (data.success) {
                 // Clear chat history
                 chatHistory.innerHTML = '';
                 // Update conversation list
                 updateConversationList();
                 // Update chat ID in the UI
                 document.getElementById('user-id').textContent = data.chat_id || '';
+                // Show success message
+                statusMessage.textContent = data.message || 'Đã tạo hội thoại mới thành công!';
+                setTimeout(() => {
+                    statusMessage.textContent = '';
+                }, 3000);
             }
             
         } catch (error) {
             console.error('Error creating new conversation:', error);
             statusMessage.textContent = `Lỗi: ${error.message}`;
+            setTimeout(() => {
+                statusMessage.textContent = '';
+            }, 5000);
         }
     }
       // Function to load a conversation
     async function loadConversation(chatId) {
         try {
+            // Kiểm tra nếu đã là conversation hiện tại
+            const currentChatId = document.getElementById('user-id').textContent;
+            if (chatId === currentChatId) {
+                statusMessage.textContent = 'Đây là hội thoại hiện tại';
+                setTimeout(() => {
+                    statusMessage.textContent = '';
+                }, 3000);
+                return;
+            }
+
             // Sử dụng hàm API từ api.js
             const data = await loadConversationAPI(chatId);
             
             if (data.success) {
                 // Clear and reload chat history
                 chatHistory.innerHTML = '';
-                  // Add all messages from the loaded conversation
-                data.chat_history.forEach(message => {
-                    addMessage(message.type, message.content);
-                });
+                  
+                // Add all messages from the loaded conversation
+                if (data.chat_history && data.chat_history.length > 0) {
+                    data.chat_history.forEach(message => {
+                        addMessage(message.type, message.content);
+                    });
+                }
                 
                 // Update conversation list UI
                 updateConversationList();
@@ -206,11 +228,20 @@ document.addEventListener('DOMContentLoaded', () => {
                         item.classList.remove('current-conversation');
                     }
                 });
+                
+                // Show success message
+                statusMessage.textContent = 'Đã chuyển sang hội thoại này';
+                setTimeout(() => {
+                    statusMessage.textContent = '';
+                }, 3000);
             }
             
         } catch (error) {
             console.error('Error loading conversation:', error);
             statusMessage.textContent = `Lỗi: ${error.message}`;
+            setTimeout(() => {
+                statusMessage.textContent = '';
+            }, 5000);
         }
     }
       // Function to delete a conversation
@@ -223,7 +254,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Sử dụng hàm API từ api.js
             const data = await deleteConversationAPI(chatId);
             
-            if (data.success) {                // If we deleted the current conversation, clear the chat history
+            if (data.success) {
+                // If we deleted the current conversation, clear the chat history
                 const currentChatId = document.getElementById('user-id').textContent;
                 if (chatId === currentChatId) {
                     chatHistory.innerHTML = '';
@@ -231,13 +263,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Update conversation list
                 updateConversationList();
-            } else {
-                statusMessage.textContent = data.message;
+                
+                // Show success message
+                statusMessage.textContent = data.message || 'Đã xóa hội thoại thành công!';
+                setTimeout(() => {
+                    statusMessage.textContent = '';
+                }, 3000);
             }
             
         } catch (error) {
             console.error('Error deleting conversation:', error);
             statusMessage.textContent = `Lỗi: ${error.message}`;
+            setTimeout(() => {
+                statusMessage.textContent = '';
+            }, 5000);
         }
     }
       // Function to update the conversation list
