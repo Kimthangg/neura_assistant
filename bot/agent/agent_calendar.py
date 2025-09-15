@@ -21,7 +21,6 @@ for feature_name, feature_info in calendar_features_map.items():
                 description=feature_info.get(
                     "description", f"Xử lí các câu truy vấn như này: {random.sample(feature_info.get('example'), 5)} dùng hàm {feature_name} với các tham số {feature_info.get('tools',{}).get('parameters',{}).get('properties',{})}"
                 ),
-                # description=feature_info.get('description', f"Handle {feature_name} Example: {feature_info.get('example', '')}"),
             )
         )
 # Use initial_tool_names in the description
