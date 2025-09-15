@@ -25,9 +25,9 @@ def prompt_summarize_emails():
     - Nếu không có thông tin ngày giờ nào được đề cập start_datetime và end_datetime sẽ mặc định là hôm qua đến hôm nay.
     ==> Sử dụng thời gian hiện tại đã đề cập để tùy chỉnh cho chính xác
     3. Trích xuất các thông tin:
-    - subject: Xác định chủ đề email dựa trên từ khóa hoặc cụm từ xuất hiện sau "về", "với chủ đề", "liên quan đến". Nếu không có subject được đề cập, trả về chuỗi rỗng.
+    
     - sender: Xác định người gửi email dựa trên từ khóa như "từ", "gửi bởi", "của". Ví dụ "email từ Ngọc", "email của công ty ABC". Nếu không có thông tin người gửi, trả về chuỗi rỗng.
-    - keyword: Xác định các từ khóa quan trọng trong nội dung yêu cầu, không bao gồm subject và sender. Có thể là những từ khóa tìm kiếm như "báo cáo", "hợp đồng", "dự án". Nếu không có keyword rõ ràng, trả về chuỗi rỗng.
+    
 
     Trả về các khoảng thời gian dưới dạng:
     - Nếu chỉ có một khoảng thời gian: start_datetime và end_datetime
@@ -36,7 +36,7 @@ def prompt_summarize_emails():
     - Không bao giờ được trả về null hoặc bỏ qua trường dữ liệu bắt buộc
     - Luôn trả về giá trị cho incorrect_datetime, ngay cả khi không thấy thông tin ngày giờ trong câu lệnh của người dùng
     - Nếu không chắc chắn, hãy đặt incorrect_datetime là False
-    - Luôn trả về các trường "subject", "sender" và "keyword" kể cả khi chúng là chuỗi rỗng
+    - Luôn trả về trường "sender" kể cả khi chúng là chuỗi rỗng
 
     Ví dụ:
     1. "Tóm tắt email hôm nay":
@@ -44,44 +44,44 @@ def prompt_summarize_emails():
     "start_datetime": "{today.strftime('%Y-%m-%d')}",
     "end_datetime": "{tomorrow.strftime('%Y-%m-%d')}",
     "incorrect_datetime": false,
-    "subject": "",
+    
     "sender": "",
-    "keyword": ""
+    
     }}
     2. "Tóm tắt email từ 10/4 đến 20/4 từ Thắng với chủ đề cuộc họp":
     {{
     "start_datetime": "{(today.replace(day=10,month=4)).strftime('%Y-%m-%d')}",
     "end_datetime": "{(today.replace(day=21,month=4)).strftime('%Y-%m-%d')}",
     "incorrect_datetime": false,
-    "subject": "cuộc họp",
+    
     "sender": "Thắng",
-    "keyword": ""
+    
     }}
     3. "Tóm tắt email ngày 30/2 về dự án mới từ công ty ABC có keyword hợp đồng":
     {{
     "start_datetime": "",
     "end_datetime": "",
     "incorrect_datetime": true,
-    "subject": "dự án mới",
+    
     "sender": "ABC",
-    "keyword": "hợp đồng"
+    
     }}
     4. "Tìm các email tuần trước từ giám đốc Toàn về đề xuất ngân sách có chứa thông tin tài chính":
     {{
     "start_datetime": "{last_weeks_list[0].strftime('%Y-%m-%d')}",
     "end_datetime": ""{(last_weeks_list[6]+timedelta(days=1)).strftime('%Y-%m-%d')}"",
     "incorrect_datetime": false,
-    "subject": "đề xuất ngân sách",
+    
     "sender": "Toàn",
-    "keyword": "thông tin tài chính"
+    
     }}
     5. "Tóm tắt email từ phòng nhân sự về quy định mới có đề cập đến chế độ làm việc từ xa":
     {{
     "start_datetime": "{today.strftime('%Y-%m-%d')}",
     "end_datetime": "{tomorrow.strftime('%Y-%m-%d')}",
     "incorrect_datetime": false,
-    "subject": "quy định mới",
+    
     "sender": "phòng nhân sự",
-    "keyword": "chế độ làm việc từ xa"
+    
     }}
     """

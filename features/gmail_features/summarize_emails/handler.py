@@ -127,10 +127,10 @@ def summarize_emails_api(args, limit=8):
     query.append("category:primary")  # Chỉ lấy email trong mục Primary
     if args['sender']:
         query.append(f"from:{args['sender']}")
-    if args['subject']:
-        query.append(f"subject:{args['subject']}")
-    if args['keyword']:
-        query.append(f"{args['keyword']}")
+    # if args['subject']:
+    #     query.append(f"subject:{args['subject']}")
+    # if args['keyword']:
+    #     query.append(f"{args['keyword']}")
     if args['start_date']:
         query.append(f"after:{to_utc_timestamp(args['start_date'])}")
     if args['end_date']:

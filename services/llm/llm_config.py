@@ -115,11 +115,6 @@ def llm_summarize(model_name: str = MODEL_NAME, temperature: float = 0.0, option
     ) 
     return prompt | llm
 
-# from langchain.memory import ConversationBufferWindowMemory
-# memory_bw = ConversationBufferWindowMemory(
-#     memory_key="chat_history", k=3, 
-#     return_messages=True,
-# )
 def create_react_agent_executor(
     prompt_template,
     tools,

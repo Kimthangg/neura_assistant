@@ -10,14 +10,14 @@ tool_summarize_emails = {
                 "type": "string",
                 "description": "Người gửi email, ví dụ: boss@gmail.com hoặc chỉ cần tên như 'Bảo Ngọc'"
             },
-            "subject": {
-                "type": "string",
-                "description": "Tiêu đề email hoặc từ khóa trong tiêu đề, ví dụ: 'Báo cáo tháng 4'"
-            },
-            "keyword": {
-                "type": "string",
-                "description": "Từ khóa cần tìm trong nội dung email, ví dụ: 'báo cáo quý'"
-            },
+            # "subject": {
+            #     "type": "string",
+            #     "description": "Tiêu đề email hoặc từ khóa trong tiêu đề, ví dụ: 'Báo cáo tháng 4'"
+            # },
+            # "keyword": {
+            #     "type": "string",
+            #     "description": "Từ khóa cần tìm trong nội dung email, ví dụ: 'báo cáo quý'"
+            # },
             "start_date": {
                 "type": "string",
                 "description": "The start date in ISO format (YYYY-MM-DD) or '' if not specified"
