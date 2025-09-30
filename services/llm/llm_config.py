@@ -157,6 +157,6 @@ def create_react_agent_executor(
         verbose=True,
         handle_parsing_errors=True,  # Giúp xử lý lỗi parsing output của LLM tốt hơn
         max_iterations=6,  # Giới hạn số lần lặp để tránh vòng lặp vô hạn
-        memory=memory,  # Thêm memory nếu được cung cấp
+        memory=memory,  # Thêm memory
         # TimeoutError = 20, # Thời gian chờ tối đa cho mỗi lần gọi tool
     )

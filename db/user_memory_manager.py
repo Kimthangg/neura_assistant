@@ -1,42 +1,57 @@
 """
-Email summarization MongoDB operations
+Email and user information MongoDB operations
 """
 import datetime
 from .base_manager import BaseMongoDBManager
 from services.embedding_model.embedding import embedding_text
 
-class EmailMongoDBManager(BaseMongoDBManager):
+class UserMemoryMongoDBManager(BaseMongoDBManager):
     """
-    Class to manage MongoDB operations for email summarization
+    MongoDB manager for handling email summaries and user information.
+    
+    This class provides operations for storing, retrieving, and searching email summaries
+    and user profile data in MongoDB. It supports vector-based similarity search using
+    embeddings for intelligent information retrieval.
+    
+    Collections used:
+    - user_memory: Stores email summaries with embeddings
+    - user_profile: Stores user personal information
     """
 
     def __init__(self):
-        """Initialize MongoDB connection for email operations"""
+        """Initialize MongoDB connection for email and user information operations."""
         super().__init__()
 
-    def save_summarized_emails(self, emails):
+    def save_info(self, emails):
         """
-        Save summarized emails to a separate collection in MongoDB
+        Save email summaries or user profile information to MongoDB.
+        
+        Automatically determines the collection based on data content:
+        - If 'personal_data' field exists, saves to 'user_profile' collection
+        - Otherwise, saves to 'user_memory' collection
+        
+        For each record:
+        - Generates vector embeddings from text content
+        - Adds timestamp metadata
+        - Performs upsert operation (insert or update)
         
         Args:
-            emails (list): List of email summary objects
-                The only required field is 'id' for each email
-                All other fields will be stored as provided
-
+            emails (list): List of data objects to save. Each object must have:
+                - 'id' field (required): Unique identifier
+                - Other fields will be stored as provided
+        
         Returns:
-            bool: True if successful, False otherwise
+            bool: True if at least one record was successfully saved, False otherwise
         """
         if self.client is None:
             print("MongoDB connection not available")
             return False
 
         try:
-            # Use a separate collection for summarized emails
-            email_collection = self.db["summarized_emails"]
-            
+            collection = self.db["user_memory"]
             # Create index for email_id for faster queries
-            email_collection.create_index("id", unique=True)
-            
+            collection.create_index("id", unique=True)
+
             # Track success count
             success_count = 0
             
@@ -57,8 +72,9 @@ class EmailMongoDBManager(BaseMongoDBManager):
                         data_embed += f"{key}: {value} "
                 # Generate embedding for the combined text
                 email_doc['embedding'] = embedding_text(data_embed)
+                
                 # Insert or update (upsert) the document
-                result = email_collection.update_one(
+                result = collection.update_one(
                     {"id": email["id"]},
                     {"$set": email_doc},
                     upsert=True
@@ -75,23 +91,28 @@ class EmailMongoDBManager(BaseMongoDBManager):
         except Exception as e:
             print(f"Lỗi khi lưu email tóm tắt: {e}")
             return False
-    
-    def get_summarized_emails(self, email_ids):
+
+    def get_info(self, email_ids):
         """
-        Get summarized emails from MongoDB
+        Retrieve email summaries from MongoDB by their IDs.
+        
+        Fetches email records from the 'user_memory' collection,
+        excluding internal MongoDB fields and embedding vectors for performance.
         
         Args:
-            email_ids (list): List of email IDs to retrieve
+            email_ids (list): List of email ID strings to retrieve
             
         Returns:
-            list: List of summarized email records
+            list: List of email summary documents. Each document contains
+                 all fields except '_id' and 'embedding'. Returns empty list
+                 if no emails found or on error.
         """
         if self.client is None:
             print("MongoDB connection not available")
             return []
             
         try:
-            email_collection = self.db["summarized_emails"]
+            email_collection = self.db["user_memory"]
             
             # Get emails with pagination and sorting
             emails = list(
@@ -107,16 +128,30 @@ class EmailMongoDBManager(BaseMongoDBManager):
             print(f"Lỗi khi lấy danh sách email tóm tắt: {e}")
             return []
 
-    def search_emails_by_vector(self, query_text, limit=5):
+    def search_info_by_vector(self, query_text, limit=5):
         """
-        Search emails using vector similarity search
+        Perform vector similarity search on email summaries using natural language queries.
+        
+        Converts the query text to an embedding vector and searches for semantically
+        similar email summaries using MongoDB's vector search capabilities.
+        
+        Requirements:
+        - MongoDB Atlas with vector search index named 'vector_index' on 'embedding' field
+        - Index must be configured for cosine similarity
         
         Args:
-            query_text (str): The query text to search for
+            query_text (str): Natural language query to search for
             limit (int, optional): Maximum number of results to return. Defaults to 5.
             
         Returns:
-            list: List of matching email documents
+            list: List of matching email documents ordered by similarity score.
+                 Each document includes a 'score' field indicating similarity.
+                 Returns empty list if no matches found or on error.
+                 
+        Example:
+            results = manager.search_info_by_vector("meeting next week", limit=3)
+            for email in results:
+                print(f"Score: {email['score']}, Subject: {email.get('subject', '')}")
         """
         if self.client is None:
             print("MongoDB connection not available")
@@ -127,7 +162,7 @@ class EmailMongoDBManager(BaseMongoDBManager):
             query_vector = embedding_text(query_text)
             
             # Use MongoDB's vector search aggregation
-            email_collection = self.db["summarized_emails"]
+            email_collection = self.db["user_memory"]
             
             # Run the aggregation pipeline with vector search
             results = email_collection.aggregate([

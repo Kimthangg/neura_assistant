@@ -36,10 +36,10 @@ class BaseMongoDBManager:
 
 # Import managers (placed at the end to avoid circular imports)
 from .chat_manager import ChatMongoDBManager
-from .email_manager import EmailMongoDBManager
+from .user_memory_manager import UserMemoryMongoDBManager
 
 # For backward compatibility
-class MongoDBManager(ChatMongoDBManager, EmailMongoDBManager):
+class MongoDBManager(ChatMongoDBManager, UserMemoryMongoDBManager):
     """
     Combined MongoDB Manager that inherits from all specialized managers
     for backward compatibility

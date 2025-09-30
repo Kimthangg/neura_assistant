@@ -8,6 +8,7 @@ from ..handler.retrieval_infomation import retrieval_info, save_information
 from services.llm.llm_config import create_react_agent_executor
 from .schedule_task import schedule_task, cancel_scheduled_task, list_scheduled_tasks
 tools = []
+# # ======Sub-agent tools=====
 tools.append(
     Tool(
     name="agent_calendar",
@@ -26,6 +27,7 @@ tools.append(
     - Cảnh báo các email có deadline gần đến hạn từ bản tóm tắt    
     - Trợ lý tìm kiếm email thông minh với nội dung cụ thể""",
 ))
+# # ======Retrieve tools=====
 tools.append(
     Tool(
     name="retrieve_information",

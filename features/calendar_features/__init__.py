@@ -6,11 +6,6 @@ from .update_calendar import *
 
 # Create a map for all calendar features
 calendar_features_map = {
-    # "normal_message": {
-    #     "example": None,
-    #     "tools": None,
-    #     "extraction_system_message": ""
-    # },
     "create_normal_event": {
         "handler_message": create_event_api,
         "example": create_event_example,

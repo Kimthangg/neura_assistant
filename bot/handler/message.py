@@ -36,11 +36,6 @@ def full_flow(action_input):
     # Add intent to extraction dictionary and return
     extraction["intent"] = intent
     if intent in ["create_normal_event", "update_event", "delete_event"]:
-        # # Update the global variable in agent_calendar module instead of writing to file
-        # from bot.agent.agent_calendar import last_parameters
-        # import sys
-        # # Assign to the global variable
-        # sys.modules['bot.agent.agent_calendar'].last_parameters = extraction
         from bot.agent import agent_calendar
         agent_calendar.last_parameters = extraction
         print("Đã lưu extraction vào biến last_parameters")

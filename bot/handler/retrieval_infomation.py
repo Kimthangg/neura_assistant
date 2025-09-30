@@ -12,7 +12,7 @@ def retrieval_info(user_query):
         list hoặc str: Danh sách các email liên quan nếu tìm thấy, hoặc thông báo lỗi 
         nếu không tìm thấy dữ liệu phù hợp.
     """
-    data = db_manager.search_emails_by_vector(query_text=user_query)
+    data = db_manager.search_info_by_vector(query_text=user_query)
     if data:
         return data
     else:
@@ -30,5 +30,5 @@ def save_information(information):
         "id": id,
         "personal_data": information
     }]
-    result = db_manager.save_summarized_emails(emails=data_user)
+    result = db_manager.save_info(emails=data_user)
     return result
