@@ -112,7 +112,7 @@ def summarize_mails(mails):
     # Lưu vào MongoDB ngay lập tức
     if list_mails:
         db_manager = MongoDBManager() 
-        db_manager.save_summarized_emails(list_mails)
+        db_manager.save_info(list_mails)
         print(f"[*] Đã lưu {len(list_mails)} emails vào cơ sở dữ liệu MongoDB")
     
     return "\n".join(summaries)
@@ -160,7 +160,7 @@ def summarize_emails_api(args, limit=8):
         print(f"[!] Lỗi khi kết nối đến cơ sở dữ liệu: {e}")
         return "Lỗi kết nối đến cơ sở dữ liệu. Vui lòng thử lại sau."
     # Kiểm tra những ID nào đã tồn tại trong DB
-    summarized_email = db_manager.get_summarized_emails(email_ids)
+    summarized_email = db_manager.get_info(email_ids)
     
     if summarized_email:
         print(f"[*] Đã tìm thấy {len(summarized_email)}/{len(mails)} email đã tồn tại trong cơ sở dữ liệu")
