@@ -163,7 +163,7 @@ def agent_manager_executor_func(query, history_chat=None):
     memory_manager = ConversationBufferWindowMemory(
     memory_key="chat_history",
     return_messages=True,
-    k=8,  # Số lượng tin nhắn trong lịch sử chat
+    k=5,  # Số lượng tin nhắn trong lịch sử chat
     )
     if history_chat:
         # Convert lịch sử về messages
