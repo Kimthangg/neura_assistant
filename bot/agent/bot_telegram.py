@@ -28,7 +28,7 @@ async def handle_message(update, context):
     history.append({"type": "user", "content": text})
     # Gọi hàm xử lý từ agent_manager_executor_func
     response = agent_manager_executor_func(text, history)
-    history.append({"type": "user", "content": response})
+    history.append({"type": "assistant", "content": response})
     db_manager.save_chat_history(chat_id="conversation_telegram", chat_history=history, conversation_name="Telegram Conversation")
     # nếu quá 4096 kí tự thì chia nhỏ ra
     for chunk in split_text(response):

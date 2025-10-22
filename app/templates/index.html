@@ -53,9 +53,15 @@
             <div id="conversation-list" class="conversation-list mt-2">
                 <!-- Conversations will be loaded here -->
                 {% for conv in conversation_list %}
-                    {% set time_str = conv.updated_at.strftime('%d/%m/%Y %H:%M') if conv.updated_at is defined and conv.updated_at is not none else 'Không rõ thời gian' %}
-                    {% set name = conv.conversation_name if conv.conversation_name is defined else 'Hội thoại không tên' %}
-                    {% set chat_id = conv.chat_id if conv.chat_id is defined else '' %}
+                    {% set time_str = conv.updated_at.strftime('%d/%m/%Y %H:%M') 
+                    if conv.updated_at is defined and conv.updated_at is not none 
+                    else 'Không rõ thời gian' %}
+                    {% set name = conv.conversation_name 
+                        if conv.conversation_name is defined 
+                        else 'Hội thoại không tên' %}
+                    {% set chat_id = conv.chat_id 
+                        if conv.chat_id is defined 
+                        else '' %}
                     
                     <div class="conversation-item {% if chat_id == current_chat_id %}current-conversation{% endif %}" data-id="{{ chat_id }}">
                         <span class="conversation-title">{{ '🔵 ' if chat_id == current_chat_id else '📝 ' }}{{ name }}</span>
